@@ -32,7 +32,7 @@ namespace Studly.Entities
 
         public DateTime RegistrationDate { get; set; }
 
-        public ICollection<Task> Tasks { get; set; } = new List<Task>();
+        public ICollection<Challenge> Tasks { get; set; } = new List<Challenge>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

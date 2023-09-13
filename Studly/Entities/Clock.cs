@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Studly.Entities
 {
-    public class Timer
+    public class Clock
     {
+        
         [Key]
         public int TimerId { get; set; }
 
@@ -17,6 +18,6 @@ namespace Studly.Entities
         public DateTime? EndTime { get; set; }
 
         public int TaskId { get; set; }
-        public Task? Task { get; set; }
+        public Challenge? Task { get; set; }
     }
 }
