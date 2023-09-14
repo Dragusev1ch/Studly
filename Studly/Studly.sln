@@ -5,7 +5,9 @@ VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studly.DAL", "Studly.DAL.csproj", "{3C8CCFF5-5001-44A7-8BA9-16B182C049DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studly.BLL", "..\Studly.BLL\Studly.BLL.csproj", "{C8AA6096-741B-424C-90D1-FDEC4AE81675}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studly.BLL", "..\Studly.BLL\Studly.BLL.csproj", "{C8AA6096-741B-424C-90D1-FDEC4AE81675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studly.PL", "..\Studly.PL\Studly.PL.csproj", "{A2C810F8-8F44-4300-BA0B-341763A57D20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C8AA6096-741B-424C-90D1-FDEC4AE81675}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8AA6096-741B-424C-90D1-FDEC4AE81675}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8AA6096-741B-424C-90D1-FDEC4AE81675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2C810F8-8F44-4300-BA0B-341763A57D20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2C810F8-8F44-4300-BA0B-341763A57D20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2C810F8-8F44-4300-BA0B-341763A57D20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2C810F8-8F44-4300-BA0B-341763A57D20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
