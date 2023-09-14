@@ -8,11 +8,11 @@ using Studly.Entities;
 
 namespace Studly
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationContext : DbContext
     {
         private readonly string _connectionString;
 
-        public ApplicationDbContext(string connectionString)
+        public ApplicationContext(string connectionString)
         {
             _connectionString = connectionString;
         }
