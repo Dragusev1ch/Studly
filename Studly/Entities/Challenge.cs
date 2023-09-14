@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace Studly.Entities
 {
-    public class Task
+    public class Challenge
     {
         [Key]
         public int TaskId { get; set; }
