@@ -10,4 +10,10 @@
     <ProjectReference Include="..\Studly\Studly.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="BusinessModels\" />
+    <Folder Include="Infrastructure\" />
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+
 </Project>
