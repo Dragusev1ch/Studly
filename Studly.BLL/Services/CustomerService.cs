@@ -5,11 +5,11 @@ using Studly.Interfaces;
 
 namespace Studly.BLL.Services;
 
-public class CustomerServices : ICustomerService
+public class CustomerService : ICustomerService
 {
     private IUnitOfWork Database { get; set; }
 
-    public CustomerServices(IUnitOfWork uow)
+    public CustomerService(IUnitOfWork uow)
     {
         Database = uow;
     }

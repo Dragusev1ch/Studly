@@ -31,10 +31,5 @@ namespace Studly
                 optionsBuilder.UseSqlServer(_connectionString);
             }
         }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
     }
 }
