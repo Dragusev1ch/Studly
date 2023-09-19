@@ -1,13 +1,8 @@
-using System.Runtime.Loader;
 using Microsoft.EntityFrameworkCore;
-using Ninject;
-using Ninject.Modules;
 using Studly;
-using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
 using Studly.BLL.Services;
 using Studly.Interfaces;
-using Studly.PL.Util;
 using Studly.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,8 +19,12 @@ builder.Services.AddSwaggerGen();
 //var kernel = new StandardKernel(customerModule, serviceModule);
 //GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel);
 
-builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddDbContext<ApplicationContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<ApplicationDbContext>(o =>
+    o.UseSqlite(builder.Configuration.GetConnectionString("SQLite")));
+
 
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();

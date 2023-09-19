@@ -5,12 +5,12 @@ namespace Studly.Repositories;
 
 public class EFUnitOfWork : IUnitOfWork
 {
-    private readonly ApplicationContext db;
+    private readonly ApplicationDbContext db;
     private  CustomerRepository customerRepository;
     
     private bool disposed = false;
 
-    public EFUnitOfWork(ApplicationContext dbContext)
+    public EFUnitOfWork(ApplicationDbContext dbContext)
     {
         db = dbContext;
     }
