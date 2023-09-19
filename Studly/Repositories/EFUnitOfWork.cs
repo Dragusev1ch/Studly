@@ -10,9 +10,9 @@ public class EFUnitOfWork : IUnitOfWork
     
     private bool disposed = false;
 
-    public EFUnitOfWork(string connectionString)
+    public EFUnitOfWork(ApplicationContext dbContext)
     {
-        db = new ApplicationContext(connectionString);
+        db = dbContext;
     }
 
     public IRepository<Customer> Customers

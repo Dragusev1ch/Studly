@@ -27,7 +27,7 @@ namespace Studly.Entities
 
         public int UserId { get; set; }
         public Customer? Customer { get; set; }
-        public ICollection<Timer> Timers { get; set; } = new List<Timer>();
+        public ICollection<Clock> Clocks { get; set; } = new List<Clock>();
         public ICollection<TaskLabel> TaskLabels { get; set; } = new List<TaskLabel>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
