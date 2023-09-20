@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
@@ -7,45 +9,43 @@ using Studly.PL.Models;
 namespace Studly.PL.Controllers
 {
     [ApiController]
-    [Route("api/customers")]
-    public class CustomerController : Controller
+    [Route("api/[controller]")]
+    public class CustomerController : ControllerBase
     {
-        private const string ControllerBaseRoute = "/api/customers";
-        private ICustomerService _service { get; }
-
-        public CustomerController(ICustomerService service)
+        [HttpGet]
+        [Authorize]
+        [Route("api/[controller]/adminendpoint")]
+        public IActionResult AdminsEndpoint()
         {
-            _service = service;
+            var currentCustomer = GetCurrentCustomer();
+
+            return Ok($"Hi {currentCustomer.Name}, you are an {currentCustomer.Role}");
         }
 
 
-
-        [HttpPost]
-        public IActionResult CreateCustomer([Bind("CustomerId,Name,Email,RegistrationDate")] CustomerViewModel customer)
+        [HttpGet]
+        [Route("api/[controller]/public")]
+        public IActionResult Public()
         {
-            try
+            return Ok("Hi, you are on public property");
+        }
+
+        private CustomerViewModel GetCurrentCustomer()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity != null)
             {
-                var customerDto = new CustomerDTO
+                var customerClaims = identity.Claims;
+
+                return new CustomerViewModel
                 {
-                    CustomerId = customer.CustomerId,
-                    Name = customer.Name,
-                    Email = customer.Email,
-                    RegistrationDate = customer.RegistrationDate
+                    Name = customerClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                    Email = customerClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
+                    Role = customerClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value,
                 };
-                _service.CreateCustomer(customerDto);
-                return Content("Customer was created");
             }
-            catch (ValidationException e)
-            {
-                ModelState.AddModelError(e.Property, e.Message);
-            }
-            return View(customer);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _service.Dispose();
-            base.Dispose(disposing);
+            return null;
         }
     }
 }
