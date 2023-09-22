@@ -1,9 +1,12 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO;
+using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
+using Studly.Entities;
 using Studly.PL.Models;
 
 namespace Studly.PL.Controllers
@@ -12,8 +15,68 @@ namespace Studly.PL.Controllers
     [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
+        private readonly ICustomerService _customerService;
+        public CustomerController(ICustomerService customerService)
+        {
+            _customerService = customerService;
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("api/[controller]/createCustomer")]
+        public IActionResult CreateCustomer([FromBody] CustomerDTO customer)
+        {
+            if (customer == null) throw new ValidationException("Customer data is null","");
+
+            _customerService.CreateCustomer(customer);
+
+            return Ok("Customer was created successfully");
+        }
+
         [HttpGet]
-        [Authorize]
+        [Route("api/[controller]/getCustomer")]
+        public IActionResult GetCustomer(int id)
+        {
+            if (id <= 0) throw new ValidationException("Invalid customer Id", "");
+
+            var customer = _customerService.GetCustomerById(id);
+
+            if (customer == null) throw new ValidationException("Customer not found", "");
+
+            return Ok(customer);
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+        [Route("api/[controller]/getListOfCustomers")]
+        public IActionResult GetListOfCustomers()
+        {
+            return Ok(_customerService.List());
+        }
+
+        [HttpPut]
+        [Route("api/[controller]/updateCustomer")]
+        public IActionResult UpdateCustomer(CustomerDTO newCustomer)
+        {
+            if (newCustomer == null) throw new ValidationException("new customer is incorrect", "");
+
+            _customerService.Update(newCustomer);
+
+            return Ok("Customer updated successfully");
+        }
+
+        [HttpDelete]
+        [Route("api/[controller]/deleteCustomer")]
+        public IActionResult DeleteCustomer(int id)
+        {
+            if(id <= 0) throw new ValidationException("Invalid customer Id", "");
+
+            _customerService.Delete(id);
+
+            return Ok("Customer deleted successfully");
+        }
+
+        [HttpGet]
         [Route("api/[controller]/adminendpoint")]
         public IActionResult AdminsEndpoint()
         {

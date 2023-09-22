@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Studly.BLL.DTO
+namespace Studly.BLL.DTO.Customer
 {
     public class CustomerDTO
     {
         public int CustomerId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
+        public string Password { get; set; }
         public DateTime RegistrationDate { get; set; }
 
     }

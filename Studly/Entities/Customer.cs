@@ -18,17 +18,17 @@ namespace Studly.Entities
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(10)]
+        [MaxLength(20)]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(64)] 
-        public string PasswordHash { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(64)] 
-        public string Salt { get; set; } = string.Empty;
+        //[Required]
+        //[MaxLength(64)] 
+        //public string Salt { get; set; } = string.Empty;
 
         public DateTime RegistrationDate { get; set; }
 

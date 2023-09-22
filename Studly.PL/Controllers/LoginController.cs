@@ -4,6 +4,9 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Studly.BLL.DTO.Customer;
+using Studly.BLL.Infrastructure;
+using Studly.BLL.Interfaces;
 using Studly.PL.Models;
 
 namespace Studly.PL.Controllers;
@@ -12,29 +15,29 @@ namespace Studly.PL.Controllers;
 [ApiController]
 public class LoginController : ControllerBase
 {
+    private readonly ICustomerService _customerService;
     private readonly IConfiguration _configuration;
-
-    public LoginController(IConfiguration configuration)
+    public LoginController(ICustomerService customerService,IConfiguration configuration)
     {
+        _customerService = customerService;
         _configuration = configuration;
     }
 
-    [AllowAnonymous]
+    
     [HttpPost]
-    public IActionResult Login([FromBody] CustomerLogin userLogin)
+    [AllowAnonymous]
+    [Route("/login")]
+    public IActionResult Login([FromBody] CustomerLoginDTO customer)
     {
-        var customer = Authenticate(userLogin);
+        if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
+            throw new ValidationException("Login failed", "");
 
-        if (User != null)
-        {
-            var token = Generate(customer);
-            return Ok(token);
-        }
+        var loggerInUser = _customerService.GetCustomer(customer);
 
-        return NotFound("Customer not found");
+        return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(Generate(loggerInUser));
     }
 
-    private string Generate(CustomerViewModel customer)
+    private string Generate(CustomerDTO customer)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -42,22 +45,22 @@ public class LoginController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, customer.Name),
-            new Claim(ClaimTypes.Email, customer.Email),
-            new Claim(ClaimTypes.Role, customer.Role),
+            new Claim(ClaimTypes.Email, customer.Email)
         };
 
-        var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
+        var token = new JwtSecurityToken(
+            _configuration["Jwt:Issuer"],
             _configuration["Jwt:Audience"],
             claims,
-            expires: DateTime.Now.AddMinutes(15),
+            expires: DateTime.Now.AddDays(30),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private CustomerViewModel Authenticate(CustomerLogin userLogin)
+    private CustomerViewModel Authenticate(CustomerLoginViewModel userLogin)
     {
-        var currentCustomer = CustomerConstants.Customers.FirstOrDefault(o => 
+        var currentCustomer = CustomerConstants.Customers.FirstOrDefault(o =>
             o.Name.ToLower() == userLogin.Name.ToLower() && o.Password == userLogin.Password);
 
         if (currentCustomer != null) return currentCustomer;
