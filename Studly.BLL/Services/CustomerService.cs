@@ -52,10 +52,10 @@ public class CustomerService : ICustomerService
         throw new ValidationException("Customer not found", "");
     }
 
-    public CustomerDTO GetCurrentCustomer(string customerName)
+    public CustomerDTO GetCurrentCustomer(string email)
     {
         var customer = Database.Customers.GetAll().FirstOrDefault(o =>
-            string.Equals(o.Name, customerName, StringComparison.OrdinalIgnoreCase));
+            string.Equals(o.Name, email, StringComparison.OrdinalIgnoreCase));
 
         if (customer != null)
             return new CustomerDTO
@@ -92,6 +92,7 @@ public class CustomerService : ICustomerService
         if (oldCustomer != null)
         {
             oldCustomer.Password = newCustomer.NewPassword;
+            Database.Save();
             return new CustomerDTO
             {
                 CustomerId = oldCustomer.CustomerId,
@@ -123,6 +124,7 @@ public class CustomerService : ICustomerService
         if (customer == null) return false;
 
         Database.Customers.Delete(customer.CustomerId);
+        Database.Save();
         return true;
     }
 

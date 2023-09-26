@@ -35,13 +35,14 @@ namespace Studly.PL.Controllers
 
         [HttpGet]
         [Route("api/customer")]
-        public async Task<IActionResult> GetCurrentCustomer()
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetCurrentCustomer()
         {
-            var customerName = User.Identity?.Name;
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
             
-            if (customerName == null) throw new ValidationException("customer not found","");
+            if (customerEmail == null) throw new ValidationException("customer not found","");
 
-            return Ok(_customerService.GetCurrentCustomer(customerName));
+            return Ok(_customerService.GetCurrentCustomer(customerEmail.Value));
         }
 
         [HttpGet]
@@ -54,24 +55,26 @@ namespace Studly.PL.Controllers
 
         [HttpPut]
         [Route("api/customer")]
-        public async Task<IActionResult> UpdateCustomer(CustomerUpdateDTO newCustomer)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult UpdateCustomer(CustomerUpdateDTO newCustomer)
         {
-            var customerName = User.Identity?.Name;
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-            if (customerName == null) throw new ValidationException("customer not found", "");
+            if (customerEmail == null) throw new ValidationException("customer not found", "");
 
-            return Ok(_customerService.Update(newCustomer,customerName));
+            return Ok(_customerService.Update(newCustomer, customerEmail.Value));
         }
 
         [HttpDelete]
         [Route("api/customer")]
-        public async Task<IActionResult> DeleteCurrentCustomer()
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult DeleteCurrentCustomer()
         {
-            var customerName = User.Identity?.Name;
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-            if (customerName == null) throw new ValidationException("customer not found", "");
+            if (customerEmail == null) throw new ValidationException("customer not found", "");
 
-            return Ok(_customerService.DeleteCurrentCustomer(customerName));
+            return Ok(_customerService.DeleteCurrentCustomer(customerEmail.Value));
         }
     }
 }
