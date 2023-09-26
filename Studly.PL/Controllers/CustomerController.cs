@@ -69,7 +69,7 @@ namespace Studly.PL.Controllers
                 return BadRequest("Email claim not found in the token.");
             }
 
-            return Ok(_customerService.Update(newCustomer,customerName));
+            return Ok(_customerService.Update(newCustomer, emailClaim.Value));
         }
 
         [HttpDelete]
