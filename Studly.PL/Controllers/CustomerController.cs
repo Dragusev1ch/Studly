@@ -37,11 +37,16 @@ namespace Studly.PL.Controllers
         [Route("api/customer")]
         public async Task<IActionResult> GetCurrentCustomer()
         {
-            var customerName = User.Identity?.Name;
-            
-            if (customerName == null) throw new ValidationException("customer not found","");
+            var emailClaim = HttpContext.User.FindFirst(ClaimTypes.Email);
 
-            return Ok(_customerService.GetCurrentCustomer(customerName));
+            if (emailClaim == null)
+            {
+                // Email claim not found in the token
+                return BadRequest("Email claim not found in the token.");
+            }
+
+            return Ok(_customerService.GetCurrentCustomer(emailClaim.Value));
+
         }
 
         [HttpGet]
@@ -56,9 +61,13 @@ namespace Studly.PL.Controllers
         [Route("api/customer")]
         public async Task<IActionResult> UpdateCustomer(CustomerUpdateDTO newCustomer)
         {
-            var customerName = User.Identity?.Name;
+            var emailClaim = HttpContext.User.FindFirst(ClaimTypes.Email);
 
-            if (customerName == null) throw new ValidationException("customer not found", "");
+            if (emailClaim == null)
+            {
+                // Email claim not found in the token
+                return BadRequest("Email claim not found in the token.");
+            }
 
             return Ok(_customerService.Update(newCustomer,customerName));
         }

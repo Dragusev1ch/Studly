@@ -52,10 +52,9 @@ public class CustomerService : ICustomerService
         throw new ValidationException("Customer not found", "");
     }
 
-    public CustomerDTO GetCurrentCustomer(string customerName)
+    public CustomerDTO GetCurrentCustomer(string email)
     {
-        var customer = Database.Customers.GetAll().FirstOrDefault(o =>
-            string.Equals(o.Name, customerName, StringComparison.OrdinalIgnoreCase));
+        var customer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email);
 
         if (customer != null)
             return new CustomerDTO
@@ -81,13 +80,13 @@ public class CustomerService : ICustomerService
         });
     }
 
-    public CustomerDTO Update(CustomerUpdateDTO newCustomer,string email)
+    public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email)
     {
         if (string.Equals(newCustomer.OldPassword, newCustomer.NewPassword))
             throw new ValidationException("the new and old passwords match", "");
 
-        var oldCustomer = Database.Customers.GetAll().FirstOrDefault(o => 
-            string.Equals(o.Email,email, StringComparison.OrdinalIgnoreCase));
+        var oldCustomer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email);
+
 
         if (oldCustomer != null)
         {
@@ -108,8 +107,6 @@ public class CustomerService : ICustomerService
     public bool Delete(int id)
     {
         var customer = Database.Customers.Get(id);
-
-        if(customer == null) return false;
 
         Database.Customers.Delete(customer.CustomerId);
         return true;
