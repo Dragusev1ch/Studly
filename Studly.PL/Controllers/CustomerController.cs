@@ -1,51 +1,80 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO;
+using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
-using Studly.PL.Models;
+using Studly.Entities;
 
 namespace Studly.PL.Controllers
 {
     [ApiController]
-    [Route("api/customers")]
-    public class CustomerController : Controller
+    public class CustomerController : ControllerBase
     {
-        private const string ControllerBaseRoute = "/api/customers";
-        private ICustomerService _service { get; }
+        private readonly ICustomerService _customerService;
 
-        public CustomerController(ICustomerService service)
+        public CustomerController(ICustomerService customerService)
         {
-            _service = service;
+            _customerService = customerService;
         }
-
-
 
         [HttpPost]
-        public IActionResult CreateCustomer([Bind("CustomerId,Name,Email,RegistrationDate")] CustomerViewModel customer)
+        [Route("api/customer")]
+        [AllowAnonymous]
+        public IActionResult CreateCustomer([FromBody] CustomerRegistrationDTO customer)
         {
-            try
-            {
-                var customerDto = new CustomerDTO
-                {
-                    CustomerId = customer.CustomerId,
-                    Name = customer.Name,
-                    Email = customer.Email,
-                    RegistrationDate = customer.RegistrationDate
-                };
-                _service.CreateCustomer(customerDto);
-                return Content("Customer was created");
-            }
-            catch (ValidationException e)
-            {
-                ModelState.AddModelError(e.Property, e.Message);
-            }
-            return View(customer);
+            if (customer == null) throw new ValidationException("Customer data is null","");
+
+            _customerService.CreateCustomer(customer);
+
+            return Ok("Customer was created successfully");
         }
 
-        protected override void Dispose(bool disposing)
+        [HttpGet]
+        [Route("api/customer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetCurrentCustomer()
         {
-            _service.Dispose();
-            base.Dispose(disposing);
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
+            
+            if (customerEmail == null) throw new ValidationException("customer not found","");
+
+            return Ok(_customerService.GetCurrentCustomer(customerEmail.Value));
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Route("api/customers")]
+        public IActionResult GetListOfCustomers()
+        {
+            return Ok(_customerService.List());
+        }
+
+        [HttpPut]
+        [Route("api/customer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult UpdateCustomer(CustomerUpdateDTO newCustomer)
+        {
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
+
+            if (customerEmail == null) throw new ValidationException("customer not found", "");
+
+            return Ok(_customerService.Update(newCustomer, customerEmail.Value));
+        }
+
+        [HttpDelete]
+        [Route("api/customer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult DeleteCurrentCustomer()
+        {
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
+
+            if (customerEmail == null) throw new ValidationException("customer not found", "");
+
+            return Ok(_customerService.DeleteCurrentCustomer(customerEmail.Value));
         }
     }
 }

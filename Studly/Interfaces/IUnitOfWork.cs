@@ -1,4 +1,4 @@
-﻿using Studly.Entities;
+﻿    using Studly.Entities;
 
 namespace Studly.Interfaces;
 
