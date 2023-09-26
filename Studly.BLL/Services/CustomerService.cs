@@ -81,13 +81,13 @@ public class CustomerService : ICustomerService
         });
     }
 
-    public CustomerDTO Update(CustomerUpdateDTO newCustomer,string email)
+    public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email)
     {
         if (string.Equals(newCustomer.OldPassword, newCustomer.NewPassword))
             throw new ValidationException("the new and old passwords match", "");
 
-        var oldCustomer = Database.Customers.GetAll().FirstOrDefault(o => 
-            string.Equals(o.Email,email, StringComparison.OrdinalIgnoreCase));
+        var oldCustomer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email);
+
 
         if (oldCustomer != null)
         {
@@ -109,8 +109,6 @@ public class CustomerService : ICustomerService
     public bool Delete(int id)
     {
         var customer = Database.Customers.Get(id);
-
-        if(customer == null) return false;
 
         Database.Customers.Delete(customer.CustomerId);
         return true;

@@ -6,7 +6,7 @@ public interface ICustomerService
 {
     public void CreateCustomer(CustomerRegistrationDTO customerDto);
     public CustomerDTO GetCustomer(CustomerLoginDTO  customerLoginDto);
-    public CustomerDTO GetCurrentCustomer(string customerName);
+    public CustomerDTO GetCurrentCustomer(string email);
     public IEnumerable<CustomerDTO> List();
     public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email);
     public bool Delete(int id);
