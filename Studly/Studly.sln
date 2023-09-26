@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studly", "Studly.csproj", "{3C8CCFF5-5001-44A7-8BA9-16B182C049DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studly.DAL", "Studly.DAL.csproj", "{3C8CCFF5-5001-44A7-8BA9-16B182C049DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studly.BLL", "..\Studly.BLL\Studly.BLL.csproj", "{C8AA6096-741B-424C-90D1-FDEC4AE81675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studly.PL", "..\Studly.PL\Studly.PL.csproj", "{4FF74904-4BA2-4D70-8375-104D47C52D26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{3C8CCFF5-5001-44A7-8BA9-16B182C049DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C8CCFF5-5001-44A7-8BA9-16B182C049DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C8CCFF5-5001-44A7-8BA9-16B182C049DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8AA6096-741B-424C-90D1-FDEC4AE81675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8AA6096-741B-424C-90D1-FDEC4AE81675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8AA6096-741B-424C-90D1-FDEC4AE81675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8AA6096-741B-424C-90D1-FDEC4AE81675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FF74904-4BA2-4D70-8375-104D47C52D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FF74904-4BA2-4D70-8375-104D47C52D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FF74904-4BA2-4D70-8375-104D47C52D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FF74904-4BA2-4D70-8375-104D47C52D26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
