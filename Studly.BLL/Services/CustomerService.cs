@@ -16,13 +16,15 @@ public class CustomerService : ICustomerService
         Database = uow;
     }
 
-    public void CreateCustomer(CustomerDTO customerDto)
+    public void CreateCustomer(CustomerRegistrationDTO customerDto)
     {
+        var similar = Database.Customers.GetAll().FirstOrDefault(o =>
+            string.Equals(o.Email, customerDto.Email, StringComparison.OrdinalIgnoreCase));
+
+        if (similar != null) throw new ValidationException("Customer with this email is exist", "");
+
         var customer = new Customer()
         {
-            //TODO auto fill id property 
-            //Database.Customers.GetAll().Any() ? Database.Customers.GetAll().Max(x => x.CustomerId) + 1 : 1,
-            CustomerId = customerDto.CustomerId, 
             Name = customerDto.Name,
             Email = customerDto.Email,
             Password = customerDto.Password,
@@ -50,6 +52,23 @@ public class CustomerService : ICustomerService
         throw new ValidationException("Customer not found", "");
     }
 
+    public CustomerDTO GetCurrentCustomer(string customerName)
+    {
+        var customer = Database.Customers.GetAll().FirstOrDefault(o =>
+            string.Equals(o.Name, customerName, StringComparison.OrdinalIgnoreCase));
+
+        if (customer != null)
+            return new CustomerDTO
+            {
+                CustomerId = customer.CustomerId,
+                Email = customer.Email,
+                Name = customer.Name,
+                RegistrationDate = customer.RegistrationDate,
+                Password = customer.Password
+            };
+        throw new ValidationException("Customer not found", "");
+    }
+
     public IEnumerable<CustomerDTO> List()
     {
         return Database.Customers.GetAll().Select(customer => new CustomerDTO
@@ -62,20 +81,27 @@ public class CustomerService : ICustomerService
         });
     }
 
-    public CustomerDTO Update(CustomerDTO newCustomer)
+    public CustomerDTO Update(CustomerUpdateDTO newCustomer,string email)
     {
-        var oldCustomer = Database.Customers.Get(newCustomer.CustomerId);
+        if (string.Equals(newCustomer.OldPassword, newCustomer.NewPassword))
+            throw new ValidationException("the new and old passwords match", "");
+
+        var oldCustomer = Database.Customers.GetAll().FirstOrDefault(o => 
+            string.Equals(o.Email,email, StringComparison.OrdinalIgnoreCase));
 
         if (oldCustomer != null)
         {
-            oldCustomer.Name = newCustomer.Name;
-            oldCustomer.Email = newCustomer.Email;
-            oldCustomer.RegistrationDate = newCustomer.RegistrationDate;
-            oldCustomer.Password = newCustomer.Password;
-
-            return newCustomer;
+            oldCustomer.Password = newCustomer.NewPassword;
+            return new CustomerDTO
+            {
+                CustomerId = oldCustomer.CustomerId,
+                Email = oldCustomer.Email,
+                Name = oldCustomer.Name,
+                RegistrationDate = oldCustomer.RegistrationDate,
+                Password = oldCustomer.Password
+            };
         }
-
+        
         throw new ValidationException("Customer not found", "");
     }
 
@@ -84,6 +110,17 @@ public class CustomerService : ICustomerService
         var customer = Database.Customers.Get(id);
 
         if(customer == null) return false;
+
+        Database.Customers.Delete(customer.CustomerId);
+        return true;
+    }
+
+    public bool DeleteCurrentCustomer(string customerName)
+    {
+        var customer = Database.Customers.GetAll().FirstOrDefault(o =>
+            string.Equals(o.Name, customerName, StringComparison.OrdinalIgnoreCase));
+
+        if (customer == null) return false;
 
         Database.Customers.Delete(customer.CustomerId);
         return true;

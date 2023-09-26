@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
-using Studly.PL.Models;
 
 namespace Studly.PL.Controllers;
 
@@ -56,15 +55,5 @@ public class LoginController : ControllerBase
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    private CustomerViewModel Authenticate(CustomerLoginViewModel userLogin)
-    {
-        var currentCustomer = CustomerConstants.Customers.FirstOrDefault(o =>
-            o.Name.ToLower() == userLogin.Name.ToLower() && o.Password == userLogin.Password);
-
-        if (currentCustomer != null) return currentCustomer;
-
-        return null;
     }
 }

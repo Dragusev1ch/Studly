@@ -1,30 +1,30 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
 using Studly.Entities;
-using Studly.PL.Models;
 
 namespace Studly.PL.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService _customerService;
+
         public CustomerController(ICustomerService customerService)
         {
             _customerService = customerService;
         }
 
         [HttpPost]
+        [Route("api/customer")]
         [AllowAnonymous]
-        [Route("api/[controller]/createCustomer")]
-        public IActionResult CreateCustomer([FromBody] CustomerDTO customer)
+        public IActionResult CreateCustomer([FromBody] CustomerRegistrationDTO customer)
         {
             if (customer == null) throw new ValidationException("Customer data is null","");
 
@@ -34,81 +34,44 @@ namespace Studly.PL.Controllers
         }
 
         [HttpGet]
-        [Route("api/[controller]/getCustomer")]
-        public IActionResult GetCustomer(int id)
+        [Route("api/customer")]
+        public async Task<IActionResult> GetCurrentCustomer()
         {
-            if (id <= 0) throw new ValidationException("Invalid customer Id", "");
+            var customerName = User.Identity?.Name;
+            
+            if (customerName == null) throw new ValidationException("customer not found","");
 
-            var customer = _customerService.GetCustomerById(id);
-
-            if (customer == null) throw new ValidationException("Customer not found", "");
-
-            return Ok(customer);
+            return Ok(_customerService.GetCurrentCustomer(customerName));
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        [Route("api/[controller]/getListOfCustomers")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Route("api/customers")]
         public IActionResult GetListOfCustomers()
         {
             return Ok(_customerService.List());
         }
 
         [HttpPut]
-        [Route("api/[controller]/updateCustomer")]
-        public IActionResult UpdateCustomer(CustomerDTO newCustomer)
+        [Route("api/customer")]
+        public async Task<IActionResult> UpdateCustomer(CustomerUpdateDTO newCustomer)
         {
-            if (newCustomer == null) throw new ValidationException("new customer is incorrect", "");
+            var customerName = User.Identity?.Name;
 
-            _customerService.Update(newCustomer);
+            if (customerName == null) throw new ValidationException("customer not found", "");
 
-            return Ok("Customer updated successfully");
+            return Ok(_customerService.Update(newCustomer,customerName));
         }
 
         [HttpDelete]
-        [Route("api/[controller]/deleteCustomer")]
-        public IActionResult DeleteCustomer(int id)
+        [Route("api/customer")]
+        public async Task<IActionResult> DeleteCurrentCustomer()
         {
-            if(id <= 0) throw new ValidationException("Invalid customer Id", "");
+            var customerName = User.Identity?.Name;
 
-            _customerService.Delete(id);
+            if (customerName == null) throw new ValidationException("customer not found", "");
 
-            return Ok("Customer deleted successfully");
-        }
-
-        [HttpGet]
-        [Route("api/[controller]/adminendpoint")]
-        public IActionResult AdminsEndpoint()
-        {
-            var currentCustomer = GetCurrentCustomer();
-
-            return Ok($"Hi {currentCustomer.Name}, you are an {currentCustomer.Role}");
-        }
-
-
-        [HttpGet]
-        [Route("api/[controller]/public")]
-        public IActionResult Public()
-        {
-            return Ok("Hi, you are on public property");
-        }
-
-        private CustomerViewModel GetCurrentCustomer()
-        {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-
-            if (identity != null)
-            {
-                var customerClaims = identity.Claims;
-
-                return new CustomerViewModel
-                {
-                    Name = customerClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
-                    Email = customerClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
-                    Role = customerClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value,
-                };
-            }
-            return null;
+            return Ok(_customerService.DeleteCurrentCustomer(customerName));
         }
     }
 }
