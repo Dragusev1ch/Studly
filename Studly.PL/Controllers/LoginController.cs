@@ -10,7 +10,6 @@ using Studly.BLL.Interfaces;
 
 namespace Studly.PL.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
 public class LoginController : ControllerBase
 {
@@ -22,10 +21,11 @@ public class LoginController : ControllerBase
         _configuration = configuration;
     }
 
-    
+
+
     [HttpPost]
     [AllowAnonymous]
-    [Route("/login")]
+    [Route("api/login")]
     public IActionResult Login([FromBody] CustomerLoginDTO customer)
     {
         if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
