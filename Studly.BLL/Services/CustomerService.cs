@@ -54,7 +54,8 @@ public class CustomerService : ICustomerService
 
     public CustomerDTO GetCurrentCustomer(string email)
     {
-        var customer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email);
+        var customer = Database.Customers.GetAll().FirstOrDefault(o =>
+            string.Equals(o.Name, email, StringComparison.OrdinalIgnoreCase));
 
         if (customer != null)
             return new CustomerDTO
@@ -91,6 +92,7 @@ public class CustomerService : ICustomerService
         if (oldCustomer != null)
         {
             oldCustomer.Password = newCustomer.NewPassword;
+            Database.Save();
             return new CustomerDTO
             {
                 CustomerId = oldCustomer.CustomerId,
@@ -120,6 +122,7 @@ public class CustomerService : ICustomerService
         if (customer == null) return false;
 
         Database.Customers.Delete(customer.CustomerId);
+        Database.Save();
         return true;
     }
 

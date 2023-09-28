@@ -30,18 +30,17 @@ public class CustomerController : ControllerBase
         return Ok("Customer was created successfully");
     }
 
-    [HttpGet]
-    [Route("api/customer")]
-    public Task<IActionResult> GetCurrentCustomer()
-    {
-        var emailClaim = HttpContext.User.FindFirst(ClaimTypes.Email);
+        [HttpGet]
+        [Route("api/customer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetCurrentCustomer()
+        {
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
+            
+            if (customerEmail == null) throw new ValidationException("customer not found","");
 
-        if (emailClaim == null)
-            // Email claim not found in the token
-            return BadRequest("Email claim not found in the token.");
-
-        return Ok(_customerService.GetCurrentCustomer(emailClaim.Value));
-    }
+            return Ok(_customerService.GetCurrentCustomer(customerEmail.Value));
+        }
 
     [HttpGet]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -51,27 +50,28 @@ public class CustomerController : ControllerBase
         return Ok(_customerService.List());
     }
 
-    [HttpPut]
-    [Route("api/customer")]
-    public async Task<IActionResult> UpdateCustomer(CustomerUpdateDTO newCustomer)
-    {
-        var emailClaim = HttpContext.User.FindFirst(ClaimTypes.Email);
+        [HttpPut]
+        [Route("api/customer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult UpdateCustomer(CustomerUpdateDTO newCustomer)
+        {
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (emailClaim == null)
-            // Email claim not found in the token
-            return BadRequest("Email claim not found in the token.");
+            if (customerEmail == null) throw new ValidationException("customer not found", "");
 
-        return Ok(_customerService.Update(newCustomer, emailClaim.Value));
-    }
+            return Ok(_customerService.Update(newCustomer, customerEmail.Value));
+        }
 
-    [HttpDelete]
-    [Route("api/customer")]
-    public async Task<IActionResult> DeleteCurrentCustomer()
-    {
-        var customerName = User.Identity?.Name;
+        [HttpDelete]
+        [Route("api/customer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult DeleteCurrentCustomer()
+        {
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerName == null) throw new ValidationException("customer not found", "");
+            if (customerEmail == null) throw new ValidationException("customer not found", "");
 
-        return Ok(_customerService.DeleteCurrentCustomer(customerName));
+            return Ok(_customerService.DeleteCurrentCustomer(customerEmail.Value));
+        }
     }
 }
