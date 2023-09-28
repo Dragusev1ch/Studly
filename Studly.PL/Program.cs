@@ -45,6 +45,8 @@ builder.Services.AddSwaggerGen(options =>
 
 });
 
+builder.Services.AddAutoMapper(typeof(Studly.BLL.Mapper.AutoMapperProfile).Assembly);
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 
     options.TokenValidationParameters = new TokenValidationParameters()
