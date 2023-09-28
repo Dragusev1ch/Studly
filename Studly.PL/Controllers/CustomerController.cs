@@ -74,4 +74,4 @@ public class CustomerController : ControllerBase
             return Ok(_customerService.DeleteCurrentCustomer(customerEmail.Value));
         }
     }
-}
+
