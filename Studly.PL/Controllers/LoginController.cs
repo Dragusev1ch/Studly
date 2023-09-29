@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
-using Studly.BLL.Interfaces;
+using Studly.BLL.Interfaces.Services;
 
 namespace Studly.PL.Controllers;
 
