@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Studly;
-using Studly.BLL.Interfaces;
 using Studly.BLL.Services;
 using Studly.Interfaces;
 using Studly.Repositories;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Studly.BLL.Infrastructure;
+using Studly.BLL.Interfaces;
+using Studly.BLL.Interfaces.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +70,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
 
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 var app = builder.Build();
 

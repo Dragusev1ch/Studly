@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
-using Studly.BLL.Interfaces;
+using Studly.BLL.Interfaces.Services;
 using Studly.Entities;
 
 namespace Studly.PL.Controllers

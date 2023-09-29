@@ -15,6 +15,9 @@ namespace Studly.BLL.Mapper
         {   
             CreateMap<Customer, CustomerDTO>();
             CreateMap<CustomerDTO, Customer>();
+
+            CreateMap<Customer, CustomerRegistrationDTO>();
+            CreateMap<CustomerRegistrationDTO, Customer>();
         }
     }
 }
