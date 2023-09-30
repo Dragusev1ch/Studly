@@ -37,8 +37,7 @@ public class CustomerService : ICustomerService
 
     public CustomerDTO GetCustomer(CustomerLoginDTO customerLoginDto)
     {
-        var customer = Database.Customers.GetAll().FirstOrDefault(o => 
-            o.Email == customerLoginDto.Email && o.Password == customerLoginDto.Password);
+        var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == customerLoginDto.Email);
 
         if (customer != null && !_passwordHasher.Verify(customer.Password, customerLoginDto.Password))
             throw new ValidationException("User name of password is not correct", "");
