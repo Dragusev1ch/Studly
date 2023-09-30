@@ -29,17 +29,25 @@ public class LoginController : ControllerBase
     [Route("api/login")]
     public IActionResult Login([FromBody] CustomerLoginDTO customer)
     {
-        if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
-            throw new ValidationException("Login failed", "");
+        try
+        {
+            if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
+                throw new ValidationException("Login failed", "");
 
-        var loggerInUser = _customerService.GetCustomer(customer);
+            var loggerInUser = _customerService.GetCustomer(customer);
 
-        // TODO: ПОФІКСИТИ - виправити відповідь не зловленого екцепшиона на http результат!!
-        //return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(GenerateToken(loggerInUser));
+            // TODO: ПОФІКСИТИ - виправити відповідь не зловленого екцепшиона на http результат!!
+            //return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(GenerateToken(loggerInUser));
 
-        if (loggerInUser == null) return NotFound();
+            if (loggerInUser == null) return NotFound();
 
-        return Ok(GenerateToken(loggerInUser));
+            return Ok(GenerateToken(loggerInUser));
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status501NotImplemented);
+        }
+
     }
 
     private Token GenerateToken(CustomerDTO customer)

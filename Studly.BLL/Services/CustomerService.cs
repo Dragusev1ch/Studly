@@ -49,7 +49,7 @@ public class CustomerService : ICustomerService
                 RegistrationDate = customer.RegistrationDate,
                 Password = customer.Password
             };
-        throw new ValidationException("Customer not found", "");
+        return null;
     }
 
     public CustomerDTO GetCurrentCustomer(string email)
