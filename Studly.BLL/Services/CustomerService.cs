@@ -5,30 +5,29 @@ using Studly.BLL.Interfaces;
 using Studly.BLL.Interfaces.Services;
 using Studly.Entities;
 using Studly.Interfaces;
-using Studly.Repositories;
 
 namespace Studly.BLL.Services;
 
 public class CustomerService : ICustomerService
 {
-    private IUnitOfWork Database { get; set; }
     private readonly IMapper _mapper;
     private readonly IPasswordHasher _passwordHasher;
 
-    public CustomerService(IUnitOfWork uow,IMapper mapper,IPasswordHasher passwordHasher)
+    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher)
     {
         Database = uow;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
     }
 
+    private IUnitOfWork Database { get; }
+
     public void CreateCustomer(CustomerRegistrationDTO customerDto)
     {
-        var similar = Database.Customers.GetAll().FirstOrDefault(o => o.Email == customerDto.Email);
-
         customerDto.Password = _passwordHasher.Hash(customerDto.Password);
 
-        if (similar != null) throw new ValidationException("Customer with this email is exist", "");
+        if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
+            throw new ValidationException("Customer with this email is exist", "");
 
         Database.Customers.Create(_mapper.Map<Customer>(customerDto));
 
@@ -77,7 +76,6 @@ public class CustomerService : ICustomerService
         }
 
         throw new ValidationException("Customer not found", "");
-
     }
 
     public bool Delete(int id)

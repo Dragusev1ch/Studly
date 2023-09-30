@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Studly.BLL.DTO.Customer
+namespace Studly.BLL.DTO.Customer;
+
+public class CustomerDTO
 {
-    public class CustomerDTO 
-    {
-        public int CustomerId { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public DateTime RegistrationDate { get; set; }
+    public int CustomerId { get; set; }
 
-    }
+    [Required] [MaxLength(10)] public string Name { get; set; }
+
+    [Required]
+    [MaxLength(20)]
+    [EmailAddress]
+    public string Email { get; set; }
+
+    public DateTime RegistrationDate { get; set; }
 }

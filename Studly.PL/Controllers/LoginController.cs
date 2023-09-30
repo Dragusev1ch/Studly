@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces.Services;
+using Studly.PL.Dtos;
 
 namespace Studly.PL.Controllers;
 
@@ -46,7 +47,6 @@ public class LoginController : ControllerBase
         {
             return StatusCode(StatusCodes.Status501NotImplemented);
         }
-
     }
 
     private Token GenerateToken(CustomerDTO customer)
