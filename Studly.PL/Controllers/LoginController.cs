@@ -10,33 +10,46 @@ using Studly.BLL.Interfaces.Services;
 
 namespace Studly.PL.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
 public class LoginController : ControllerBase
 {
-    private readonly ICustomerService _customerService;
     private readonly IConfiguration _configuration;
-    public LoginController(ICustomerService customerService,IConfiguration configuration)
+    private readonly ICustomerService _customerService;
+
+    public LoginController(ICustomerService customerService, IConfiguration configuration)
     {
         _customerService = customerService;
         _configuration = configuration;
     }
 
-    
+
     [HttpPost]
     [AllowAnonymous]
-    [Route("/login")]
+    [Route("api/login")]
     public IActionResult Login([FromBody] CustomerLoginDTO customer)
     {
-        if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
-            throw new ValidationException("Login failed", "");
+        try
+        {
+            if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
+                throw new ValidationException("Login failed", "");
 
-        var loggerInUser = _customerService.GetCustomer(customer);
+            var loggerInUser = _customerService.GetCustomer(customer);
 
-        return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(Generate(loggerInUser));
+            // TODO: ПОФІКСИТИ - виправити відповідь не зловленого екцепшиона на http результат!!
+            //return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(GenerateToken(loggerInUser));
+
+            if (loggerInUser == null) return NotFound();
+
+            return Ok(GenerateToken(loggerInUser));
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status501NotImplemented);
+        }
+
     }
 
-    private string Generate(CustomerDTO customer)
+    private Token GenerateToken(CustomerDTO customer)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -54,6 +67,6 @@ public class LoginController : ControllerBase
             expires: DateTime.Now.AddDays(30),
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new Token(new JwtSecurityTokenHandler().WriteToken(token));
     }
 }
