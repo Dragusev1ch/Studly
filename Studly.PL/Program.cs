@@ -45,6 +45,7 @@ builder.Services.AddSwaggerGen(options =>
 
 });
 
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 
     options.TokenValidationParameters = new TokenValidationParameters()
@@ -67,6 +68,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
+// Add CORS -> TODO: check how it works and rewrite it!
+builder.Services.AddCors(o =>
+{
+    o.AddDefaultPolicy(p =>
+    {
+        p.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,6 +88,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 

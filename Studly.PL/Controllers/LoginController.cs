@@ -7,20 +7,21 @@ using Microsoft.IdentityModel.Tokens;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
+using Studly.PL.Dtos;
 
 namespace Studly.PL.Controllers;
 
 [ApiController]
 public class LoginController : ControllerBase
 {
-    private readonly ICustomerService _customerService;
     private readonly IConfiguration _configuration;
-    public LoginController(ICustomerService customerService,IConfiguration configuration)
+    private readonly ICustomerService _customerService;
+
+    public LoginController(ICustomerService customerService, IConfiguration configuration)
     {
         _customerService = customerService;
         _configuration = configuration;
     }
-
 
 
     [HttpPost]
@@ -33,10 +34,15 @@ public class LoginController : ControllerBase
 
         var loggerInUser = _customerService.GetCustomer(customer);
 
-        return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(Generate(loggerInUser));
+        // TODO: ПОФІКСИТИ - виправити відповідь не зловленого екцепшиона на http результат!!
+        //return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(GenerateToken(loggerInUser));
+
+        if (loggerInUser == null) return NotFound();
+
+        return Ok(GenerateToken(loggerInUser));
     }
 
-    private string Generate(CustomerDTO customer)
+    private Token GenerateToken(CustomerDTO customer)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -54,6 +60,6 @@ public class LoginController : ControllerBase
             expires: DateTime.Now.AddDays(30),
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new Token(new JwtSecurityTokenHandler().WriteToken(token));
     }
 }

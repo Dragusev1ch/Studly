@@ -34,7 +34,7 @@ public class CustomerService : ICustomerService
         Database.Save();
     }
 
-    public CustomerDTO GetCustomer(CustomerLoginDTO customerLoginDto)
+    public CustomerDTO? GetCustomer(CustomerLoginDTO customerLoginDto)
     {
         var customer = Database.Customers.GetAll().FirstOrDefault(o =>
             string.Equals(o.Email, customerLoginDto.Email, StringComparison.OrdinalIgnoreCase) &&
