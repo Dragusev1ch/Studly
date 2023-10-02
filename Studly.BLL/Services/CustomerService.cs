@@ -68,7 +68,7 @@ public class CustomerService : ICustomerService
 
         if (oldCustomer != null)
         {
-            oldCustomer.Password = newCustomer.NewPassword;
+            oldCustomer.Password = _passwordHasher.Hash(newCustomer.NewPassword);
 
             Database.Save();
 
