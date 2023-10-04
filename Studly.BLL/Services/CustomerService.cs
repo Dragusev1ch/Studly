@@ -12,18 +12,23 @@ public class CustomerService : ICustomerService
 {
     private readonly IMapper _mapper;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IDatabaseService _databaseService;
 
-    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher)
+
+    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher,IDatabaseService databaseService)
     {
         Database = uow;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
+        _databaseService = databaseService;
     }
 
     private IUnitOfWork Database { get; }
 
-    public void CreateCustomer(CustomerRegistrationDTO customerDto)
+    public async Task CreateCustomer(CustomerRegistrationDTO customerDto)
     {
+        await _databaseService.SaveEntityAsync(_mapper.Map<Customer>(customerDto));
+
         customerDto.Password = _passwordHasher.Hash(customerDto.Password);
 
         if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
@@ -34,9 +39,11 @@ public class CustomerService : ICustomerService
         Database.Save();
     }
 
-    public CustomerDTO? GetCustomer(CustomerLoginDTO customerLoginDto)
-    {
-        var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == customerLoginDto.Email);
+    public async Task<CustomerDTO> GetCustomer(CustomerLoginDTO customerLoginDto)
+    { 
+        var l =  await _databaseService.GetEntitiesAsync<Customer>();
+
+       var customer = l.FirstOrDefault(o => o.Email == customerLoginDto.Email);
 
         if (customer != null && !_passwordHasher.Verify(customer.Password, customerLoginDto.Password))
             throw new ValidationException("User name of password is not correct", "");
@@ -82,7 +89,7 @@ public class CustomerService : ICustomerService
     {
         var customer = Database.Customers.Get(id);
 
-        Database.Customers.Delete(customer.CustomerId);
+        Database.Customers.Delete(customer.Id);
         return true;
     }
 
@@ -93,7 +100,7 @@ public class CustomerService : ICustomerService
 
         if (customer == null) return false;
 
-        Database.Customers.Delete(customer.CustomerId);
+        Database.Customers.Delete(customer.Id);
         Database.Save();
         return true;
     }

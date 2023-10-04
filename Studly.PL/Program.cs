@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
 using Studly.BLL.Interfaces.Services;
+using Studly.BLL.Services.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,9 +69,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<ApplicationDbContext>(o =>
     o.UseSqlite(builder.Configuration.GetConnectionString("SQLite")));
 
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 // Add CORS -> TODO: check how it works and rewrite it!
 builder.Services.AddCors(o =>
@@ -99,6 +103,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.UseAuthentication();
+
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.MapControllers();
 

@@ -4,8 +4,8 @@ namespace Studly.BLL.Interfaces.Services;
 
 public interface ICustomerService
 {
-    public void CreateCustomer(CustomerRegistrationDTO customerDto);
-    public CustomerDTO? GetCustomer(CustomerLoginDTO  customerLoginDto);
+    public Task CreateCustomer(CustomerRegistrationDTO customerDto);
+    public Task<CustomerDTO> GetCustomer(CustomerLoginDTO  customerLoginDto);
     public CustomerDTO GetCurrentCustomer(string email);
     public IQueryable<CustomerDTO> List();
     public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email);

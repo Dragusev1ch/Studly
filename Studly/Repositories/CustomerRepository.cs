@@ -9,7 +9,7 @@ using Studly.Interfaces;
 
 namespace Studly.Repositories
 {
-    public class CustomerRepository : IRepository<Customer>
+    public class CustomerRepository<T> : IRepository<Customer> 
     {
         private readonly ApplicationDbContext db;
 
