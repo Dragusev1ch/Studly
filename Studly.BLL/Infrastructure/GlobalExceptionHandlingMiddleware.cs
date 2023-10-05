@@ -8,9 +8,9 @@ namespace Studly.BLL.Infrastructure;
 
 public class GlobalExceptionHandlingMiddleware : IMiddleware
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
 
-    public GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger logger)
+    public GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger)
     {
         _logger = logger;
     }
@@ -25,21 +25,19 @@ public class GlobalExceptionHandlingMiddleware : IMiddleware
         {
             _logger.LogError(e, e.Message);
 
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-            ProblemDetails problem = new()
+            ProblemDetails problem = new ProblemDetails
             {
                 Status = (int)HttpStatusCode.InternalServerError,
-                Type = "",
-                Title = "",
-                Detail = "",
+                Type = e.GetType().ToString(),
+                Detail = e.Message, 
             };
 
             var json = JsonSerializer.Serialize(problem);
 
-            await context.Response.WriteAsync(json);
-
             context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            await context.Response.WriteAsync(json);
         }
     }
 }

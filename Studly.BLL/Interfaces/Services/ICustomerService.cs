@@ -4,13 +4,13 @@ namespace Studly.BLL.Interfaces.Services;
 
 public interface ICustomerService
 {
-    public Task CreateCustomer(CustomerRegistrationDTO customerDto);
-    public Task<CustomerDTO> GetCustomer(CustomerLoginDTO  customerLoginDto);
-    public CustomerDTO GetCurrentCustomer(string email);
-    public IQueryable<CustomerDTO> List();
-    public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email);
-    public bool Delete(int id);
-    public bool DeleteCurrentCustomer(string customerName);
-    CustomerDTO GetCustomerById(int? id);
+    Task CreateCustomer(CustomerRegistrationDTO customerDto);
+    Task<CustomerDTO> GetCustomer(CustomerLoginDTO  customerLoginDto);
+    Task<CustomerDTO> GetCurrentCustomer(string email); 
+    Task<IEnumerable<CustomerDTO>> List();
+    Task<CustomerDTO> Update(CustomerUpdateDTO newCustomer, string email); 
+    Task<int> Delete(int id);
+    Task<int> DeleteCurrentCustomer(string customerName);
+    Task<CustomerDTO> GetCustomerById(int id);
     void Dispose();
 }

@@ -6,9 +6,9 @@ namespace Studly.Repositories;
 public class EFUnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext db;
-    private  CustomerRepository customerRepository;
+    private  CustomerRepository<Customer> customerRepository;
     
-    private bool disposed = false;
+    private bool _disposed = false;
 
     public EFUnitOfWork(ApplicationDbContext dbContext)
     {
@@ -19,7 +19,7 @@ public class EFUnitOfWork : IUnitOfWork
     {
         get
         {
-            if (customerRepository == null) customerRepository = new CustomerRepository(db);
+            if (customerRepository == null) customerRepository = new CustomerRepository<Customer>(db);
 
             return customerRepository;
         }
@@ -38,13 +38,13 @@ public class EFUnitOfWork : IUnitOfWork
 
     public virtual void Dispose(bool disposing)
     {
-        if (!disposed)
+        if (!_disposed)
         {
             if (disposing)
             {
                 db.Dispose();
             }
-            disposed = true;
+            _disposed = true;
         }
     }
 

@@ -5,6 +5,7 @@ using Studly.BLL.Interfaces;
 using Studly.BLL.Interfaces.Services;
 using Studly.Entities;
 using Studly.Interfaces;
+using System.Xml.Linq;
 
 namespace Studly.BLL.Services;
 
@@ -27,16 +28,9 @@ public class CustomerService : ICustomerService
 
     public async Task CreateCustomer(CustomerRegistrationDTO customerDto)
     {
-        await _databaseService.SaveEntityAsync(_mapper.Map<Customer>(customerDto));
-
         customerDto.Password = _passwordHasher.Hash(customerDto.Password);
 
-        if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
-            throw new ValidationException("Customer with this email is exist", "");
-
-        Database.Customers.Create(_mapper.Map<Customer>(customerDto));
-
-        Database.Save();
+        await _databaseService.SaveEntityAsync(_mapper.Map<Customer>(customerDto));
     }
 
     public async Task<CustomerDTO> GetCustomer(CustomerLoginDTO customerLoginDto)
@@ -51,33 +45,38 @@ public class CustomerService : ICustomerService
         return _mapper.Map<CustomerDTO>(customer);
     }
 
-    public CustomerDTO GetCurrentCustomer(string email)
+    public async Task<CustomerDTO> GetCurrentCustomer(string email)
     {
-        var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == email);
+        var l = await _databaseService.GetEntitiesAsync<Customer>();
+
+        var customer = l.FirstOrDefault(o => o.Email == email);
 
         if (customer != null) return _mapper.Map<CustomerDTO>(customer);
 
         throw new ValidationException("Customer not found", "");
     }
 
-    public IQueryable<CustomerDTO> List()
+    public async Task<IEnumerable<CustomerDTO>> List()
     {
-        return Database.Customers.GetAll().Select(customer => _mapper.Map<CustomerDTO>(customer));
+        var list = await _databaseService.GetEntitiesAsync<Customer>();
+
+        return list.Select(customer => _mapper.Map<CustomerDTO>(customer));
     }
 
-    public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email)
+    public async Task<CustomerDTO> Update(CustomerUpdateDTO newCustomer, string email)
     {
         if (newCustomer.OldPassword == newCustomer.NewPassword)
             throw new ValidationException("the new and old passwords match", "");
 
-        var oldCustomer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email);
+        var list = await _databaseService.GetEntitiesAsync<Customer>();
 
+        var oldCustomer = list.FirstOrDefault(c => c.Email == email);
 
         if (oldCustomer != null)
         {
             oldCustomer.Password = _passwordHasher.Hash(newCustomer.NewPassword);
 
-            Database.Save();
+            await _databaseService.SaveEntityAsync(oldCustomer);
 
             return _mapper.Map<CustomerDTO>(oldCustomer);
         }
@@ -85,31 +84,29 @@ public class CustomerService : ICustomerService
         throw new ValidationException("Customer not found", "");
     }
 
-    public bool Delete(int id)
+    public async Task<int> Delete(int id)
     {
-        var customer = Database.Customers.Get(id);
+        var customer = await _databaseService.GetEntityAsync<Customer>(id);
 
-        Database.Customers.Delete(customer.Id);
-        return true;
+        return await _databaseService.DeleteEntityAsync<Customer>(customer);
     }
 
-    public bool DeleteCurrentCustomer(string customerName)
+    public async Task<int> DeleteCurrentCustomer(string customerName)
     {
-        var customer = Database.Customers.GetAll().FirstOrDefault(o =>
-            string.Equals(o.Name, customerName, StringComparison.OrdinalIgnoreCase));
+        var list = await _databaseService.GetEntitiesAsync<Customer>();
 
-        if (customer == null) return false;
+        var customer = list.FirstOrDefault(o => o.Name == customerName);
 
-        Database.Customers.Delete(customer.Id);
-        Database.Save();
-        return true;
+        if (customer == null) throw new ValidationException("customer not found", "");
+
+        return await _databaseService.DeleteEntityAsync<Customer>(customer);
     }
 
-    public CustomerDTO GetCustomerById(int? id)
+    public async Task<CustomerDTO> GetCustomerById(int id)
     {
         if (id == null) throw new ValidationException("Id not set", "");
 
-        var customer = Database.Customers.Get(id.Value);
+        var customer = await _databaseService.GetEntityAsync<Customer>(id);
 
         if (customer == null) throw new ValidationException("Customer not found", "");
 

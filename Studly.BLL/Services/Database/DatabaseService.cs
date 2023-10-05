@@ -14,8 +14,6 @@ namespace Studly.BLL.Services.Database
     {
         private SQLiteAsyncConnection database;
 
-
-
         private async Task Init<T>() where T : BaseEntity, new()
         {
             if (database == null)

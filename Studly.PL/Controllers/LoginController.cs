@@ -27,26 +27,16 @@ public class LoginController : ControllerBase
     [HttpPost]
     [AllowAnonymous]
     [Route("api/login")]
-    public IActionResult Login([FromBody] CustomerLoginDTO customer)
+    public async Task<IActionResult> Login([FromBody] CustomerLoginDTO customer)
     {
-        try
-        {
             if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
                 throw new ValidationException("Login failed", "");
 
-            var loggerInUser = _customerService.GetCustomer(customer);
+            var loggerInUser = await _customerService.GetCustomer(customer);
 
-            // TODO: ПОФІКСИТИ - виправити відповідь не зловленого екцепшиона на http результат!!
-            //return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(GenerateToken(loggerInUser));
-
-            if (loggerInUser == null) return NotFound();
+            if (loggerInUser == null) throw new ValidationException("customer not found", "");
 
             return Ok(GenerateToken(loggerInUser));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(StatusCodes.Status501NotImplemented);
-        }
     }
 
     private Token GenerateToken(CustomerDTO customer)
