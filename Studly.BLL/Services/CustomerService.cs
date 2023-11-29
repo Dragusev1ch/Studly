@@ -4,7 +4,6 @@ using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
 using Studly.BLL.Interfaces.Services;
 using Studly.Entities;
-using Studly.Interfaces;
 using System.Xml.Linq;
 
 namespace Studly.BLL.Services;
@@ -16,15 +15,12 @@ public class CustomerService : ICustomerService
     private readonly IDatabaseService _databaseService;
 
 
-    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher,IDatabaseService databaseService)
+    public CustomerService(IMapper mapper, IPasswordHasher passwordHasher,IDatabaseService databaseService)
     {
-        Database = uow;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
         _databaseService = databaseService;
     }
-
-    private IUnitOfWork Database { get; }
 
     public async Task CreateCustomer(CustomerRegistrationDTO customerDto)
     {
@@ -115,6 +111,6 @@ public class CustomerService : ICustomerService
 
     public void Dispose()
     {
-        Database.Dispose();
+        throw new NotImplementedException();
     }
 }

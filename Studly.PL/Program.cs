@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Studly;
 using Studly.BLL.Services;
-using Studly.Interfaces;
-using Studly.Repositories;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Microsoft.OpenApi.Models;
@@ -70,7 +68,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
     o.UseSqlite(builder.Configuration.GetConnectionString("SQLite")));
 
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
-builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
