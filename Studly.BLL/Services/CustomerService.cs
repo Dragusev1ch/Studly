@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
@@ -12,26 +13,39 @@ public class CustomerService : ICustomerService
 {
     private readonly IMapper _mapper;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher)
+    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher, ILogger<CustomerService> logger)
     {
         Database = uow;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
+        _logger = logger;
     }
 
     private IUnitOfWork Database { get; }
 
     public void CreateCustomer(CustomerRegistrationDTO customerDto)
     {
-        customerDto.Password = _passwordHasher.Hash(customerDto.Password);
+        try
+        {
+            customerDto.Password = _passwordHasher.Hash(customerDto.Password);
 
-        if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
-            throw new ValidationException("Customer with this email is exist", "");
+            if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
+                throw new ValidationException("Customer with this email is exist", "");
 
-        Database.Customers.Create(_mapper.Map<Customer>(customerDto));
+            Database.Customers.Create(_mapper.Map<Customer>(customerDto));
 
-        Database.Save();
+            Database.Save();
+        }
+        catch (ValidationException ve)
+        {
+            _logger.LogError($"Validation failed during customer creation: {ve.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error occurred during customer creation: {ex.Message}");
+        }
     }
 
     public CustomerDTO? GetCustomer(CustomerLoginDTO customerLoginDto)

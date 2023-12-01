@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces.Services;
+using Studly.BLL.Services;
 using Studly.Entities;
 
 namespace Studly.PL.Controllers;
@@ -13,10 +14,12 @@ namespace Studly.PL.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
+    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerController(ICustomerService customerService)
+    public CustomerController(ICustomerService customerService, ILogger<CustomerService> logger)
     {
         _customerService = customerService;
+        _logger = logger;
     }
 
     [HttpPost]
@@ -24,12 +27,22 @@ public class CustomerController : ControllerBase
     [AllowAnonymous]
     public IActionResult CreateCustomer([FromBody] CustomerRegistrationDTO customer)
     {
-        // TODO: FIX THIS
-        if (customer == null) throw new ValidationException("Customer data is null", "");
+        try
+        {
+            if (customer == null) throw new ValidationException("Customer data is null", "");
 
-        _customerService.CreateCustomer(customer);
+            _customerService.CreateCustomer(customer);
 
-        return Ok(_customerService.GetCurrentCustomer(customer.Email));
+            return Ok(_customerService.GetCurrentCustomer(customer.Email));
+        }
+        catch (ValidationException ve)
+        {
+            _logger.LogError(ve.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+        }
     }
 
     [HttpGet]
