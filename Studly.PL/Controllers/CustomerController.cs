@@ -27,22 +27,11 @@ public class CustomerController : ControllerBase
     [AllowAnonymous]
     public IActionResult CreateCustomer([FromBody] CustomerRegistrationDTO customer)
     {
-        try
-        {
             if (customer == null) throw new ValidationException("Customer data is null", "");
 
             _customerService.CreateCustomer(customer);
 
             return Ok(_customerService.GetCurrentCustomer(customer.Email));
-        }
-        catch (ValidationException ve)
-        {
-            _logger.LogError(ve.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex.Message);
-        }
     }
 
     [HttpGet]

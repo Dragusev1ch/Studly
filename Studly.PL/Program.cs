@@ -72,8 +72,6 @@ builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
-
 // Add CORS -> TODO: check how it works and rewrite it!
 builder.Services.AddCors(o =>
 {

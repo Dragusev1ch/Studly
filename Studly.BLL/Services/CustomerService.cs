@@ -13,39 +13,26 @@ public class CustomerService : ICustomerService
 {
     private readonly IMapper _mapper;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher, ILogger<CustomerService> logger)
+    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher)
     {
         Database = uow;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
-        _logger = logger;
     }
 
     private IUnitOfWork Database { get; }
 
     public void CreateCustomer(CustomerRegistrationDTO customerDto)
     {
-        try
-        {
-            customerDto.Password = _passwordHasher.Hash(customerDto.Password);
-
             if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
                 throw new ValidationException("Customer with this email is exist", "");
+
+            customerDto.Password = _passwordHasher.Hash(customerDto.Password);
 
             Database.Customers.Create(_mapper.Map<Customer>(customerDto));
 
             Database.Save();
-        }
-        catch (ValidationException ve)
-        {
-            _logger.LogError($"Validation failed during customer creation: {ve.Message}");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error occurred during customer creation: {ex.Message}");
-        }
     }
 
     public CustomerDTO? GetCustomer(CustomerLoginDTO customerLoginDto)
