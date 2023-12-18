@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Studly.BLL.DTO;
+using Studly.BLL.Infrastructure.Exceptions;
 
 namespace Studly.BLL.Infrastructure;
 
-    public class GlobalExceptionHandlingMiddleware 
+public class GlobalExceptionHandlingMiddleware 
     {
         private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
         private readonly RequestDelegate _next;
@@ -26,7 +27,19 @@ namespace Studly.BLL.Infrastructure;
             }
             catch (ValidationException ve)
             {
-                await HandleExceptionAsync(context, ve.Message, HttpStatusCode.InternalServerError);
+                await HandleExceptionAsync(context, ve.Message, HttpStatusCode.Forbidden,ve.MessageForUser);
+            }
+            catch (NullDataException nde)
+            {
+                await HandleExceptionAsync(context, nde.Message, HttpStatusCode.BadRequest,nde.MessageForUser);
+            }
+            catch (NotFoundException nfe)
+            {
+                await HandleExceptionAsync(context, nfe.Message, HttpStatusCode.NotFound, nfe.MessageForUser);
+            }
+            catch (LoginException le)
+            {
+                await HandleExceptionAsync(context, le.Message, HttpStatusCode.Unauthorized, le.MessageForUser);
             }
             catch (Exception e)
             {

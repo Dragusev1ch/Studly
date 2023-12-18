@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
+using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces;
 using Studly.BLL.Interfaces.Services;
 using Studly.Entities;
@@ -26,7 +27,8 @@ public class CustomerService : ICustomerService
     public void CreateCustomer(CustomerRegistrationDTO customerDto)
     {
             if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
-                throw new ValidationException("Customer with this email is exist", "");
+                throw new ValidationException("User with this email is already exist",
+                    "Please, use another email for registration");
 
             customerDto.Password = _passwordHasher.Hash(customerDto.Password);
 
@@ -40,7 +42,8 @@ public class CustomerService : ICustomerService
         var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == customerLoginDto.Email);
 
         if (customer != null && !_passwordHasher.Verify(customer.Password, customerLoginDto.Password))
-            throw new ValidationException("User name of password is not correct", "");
+            throw new ValidationException("User name or password is not correct",
+                "Check your email and password and try again");
 
         return _mapper.Map<CustomerDTO>(customer);
     }
@@ -51,7 +54,8 @@ public class CustomerService : ICustomerService
 
         if (customer != null) return _mapper.Map<CustomerDTO>(customer);
 
-        throw new ValidationException("Customer not found", "");
+        throw new NotFoundException("User with this email not found",
+            "Check your email and try again");
     }
 
     public IQueryable<CustomerDTO> List()
@@ -62,7 +66,8 @@ public class CustomerService : ICustomerService
     public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email)
     {
         if (newCustomer.OldPassword == newCustomer.NewPassword)
-            throw new ValidationException("the new and old passwords match", "");
+            throw new ValidationException("The new and old passwords match",
+                "Think of new password for your account");
 
         var oldCustomer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email);
 
@@ -76,7 +81,8 @@ public class CustomerService : ICustomerService
             return _mapper.Map<CustomerDTO>(oldCustomer);
         }
 
-        throw new ValidationException("Customer not found", "");
+        throw new ValidationException("User with this data is not found",
+            "Check your email and try again");
     }
 
     public bool Delete(int id)
@@ -101,11 +107,12 @@ public class CustomerService : ICustomerService
 
     public CustomerDTO GetCustomerById(int? id)
     {
-        if (id == null) throw new ValidationException("Id not set", "");
+        if (id == null) throw new NullDataException("Id not set", "Unlucky");
 
         var customer = Database.Customers.Get(id.Value);
 
-        if (customer == null) throw new ValidationException("Customer not found", "");
+        if (customer == null) throw new ValidationException("Customer with this Id not found", 
+            "Check Id and try again");
 
         return _mapper.Map<CustomerDTO>(customer);
     }

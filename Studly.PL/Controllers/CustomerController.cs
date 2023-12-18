@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
+using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces.Services;
 using Studly.BLL.Services;
 using Studly.Entities;
@@ -27,7 +28,8 @@ public class CustomerController : ControllerBase
     [AllowAnonymous]
     public IActionResult CreateCustomer([FromBody] CustomerRegistrationDTO customer)
     {
-            if (customer == null) throw new ValidationException("Customer data is null", "");
+            if (customer == null) throw new NullDataException("User data is null",
+                "Enter information for create account");
 
             _customerService.CreateCustomer(customer);
 
@@ -41,7 +43,8 @@ public class CustomerController : ControllerBase
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("customer not found", "");
+        if (customerEmail == null) throw new ValidationException("User with this email not found",
+            "Check your email and try again");
 
         return Ok(_customerService.GetCurrentCustomer(customerEmail.Value));
     }
@@ -61,7 +64,8 @@ public class CustomerController : ControllerBase
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("customer not found", "");
+        if (customerEmail == null) throw new ValidationException("User with this email not found",
+            "Check your email and try again");
 
         return Ok(_customerService.Update(newCustomer, customerEmail.Value));
     }
@@ -73,7 +77,8 @@ public class CustomerController : ControllerBase
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("customer not found", "");
+        if (customerEmail == null) throw new ValidationException("User with this email not found",
+            "Check your email and try again");
 
         return Ok(_customerService.DeleteCurrentCustomer(customerEmail.Value));
     }
