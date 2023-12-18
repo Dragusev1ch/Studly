@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
+using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces.Services;
+using Studly.BLL.Services;
 using Studly.Entities;
 
 namespace Studly.PL.Controllers;
@@ -13,10 +15,12 @@ namespace Studly.PL.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
+    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerController(ICustomerService customerService)
+    public CustomerController(ICustomerService customerService, ILogger<CustomerService> logger)
     {
         _customerService = customerService;
+        _logger = logger;
     }
 
     [HttpPost]
@@ -24,12 +28,12 @@ public class CustomerController : ControllerBase
     [AllowAnonymous]
     public IActionResult CreateCustomer([FromBody] CustomerRegistrationDTO customer)
     {
-        // TODO: FIX THIS
-        if (customer == null) throw new ValidationException("Customer data is null", "");
+            if (customer == null) throw new NullDataException("User data is null",
+                "Enter information for create account");
 
-        _customerService.CreateCustomer(customer);
+            _customerService.CreateCustomer(customer);
 
-        return Ok(_customerService.GetCurrentCustomer(customer.Email));
+            return Ok(_customerService.GetCurrentCustomer(customer.Email));
     }
 
     [HttpGet]
@@ -39,7 +43,8 @@ public class CustomerController : ControllerBase
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("customer not found", "");
+        if (customerEmail == null) throw new ValidationException("User with this email not found",
+            "Check your email and try again");
 
         return Ok(_customerService.GetCurrentCustomer(customerEmail.Value));
     }
@@ -59,7 +64,8 @@ public class CustomerController : ControllerBase
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("customer not found", "");
+        if (customerEmail == null) throw new ValidationException("User with this email not found",
+            "Check your email and try again");
 
         return Ok(_customerService.Update(newCustomer, customerEmail.Value));
     }
@@ -71,7 +77,8 @@ public class CustomerController : ControllerBase
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("customer not found", "");
+        if (customerEmail == null) throw new ValidationException("User with this email not found",
+            "Check your email and try again");
 
         return Ok(_customerService.DeleteCurrentCustomer(customerEmail.Value));
     }

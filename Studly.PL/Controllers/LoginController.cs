@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
+using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces.Services;
 using Studly.PL.Dtos;
 
@@ -29,25 +30,17 @@ public class LoginController : ControllerBase
     [Route("api/login")]
     public IActionResult Login([FromBody] CustomerLoginDTO customer)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
-                throw new ValidationException("Login failed", "");
+        if (string.IsNullOrEmpty(customer.Email) || string.IsNullOrEmpty(customer.Password))
+            throw new ValidationException("User with this email and password is not exist", 
+                "Check your email and password and try again");
 
-            var loggerInUser = _customerService.GetCustomer(customer);
-
-            // TODO: ПОФІКСИТИ - виправити відповідь не зловленого екцепшиона на http результат!!
-            //return loggerInUser is null ? throw new ValidationException("User not found", "") : Ok(GenerateToken(loggerInUser));
-
-            if (loggerInUser == null) return NotFound();
-
-            return Ok(GenerateToken(loggerInUser));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(StatusCodes.Status501NotImplemented);
-        }
+        var loggerInUser = _customerService.GetCustomer(customer);
+        
+        return loggerInUser is null ? 
+            throw new NotFoundException("User with this email and password is not found",
+                "Check your email and password and try again") : Ok(GenerateToken(loggerInUser));
     }
+
 
     private Token GenerateToken(CustomerDTO customer)
     {
