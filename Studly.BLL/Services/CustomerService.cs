@@ -1,109 +1,88 @@
-﻿using Studly.BLL.DTO.Customer;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
+using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces;
+using Studly.BLL.Interfaces.Services;
 using Studly.Entities;
 using Studly.Interfaces;
-using Studly.Repositories;
 
 namespace Studly.BLL.Services;
 
 public class CustomerService : ICustomerService
 {
-    private IUnitOfWork Database { get; set; }
+    private readonly IMapper _mapper;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public CustomerService(IUnitOfWork uow)
+    public CustomerService(IUnitOfWork uow, IMapper mapper, IPasswordHasher passwordHasher)
     {
         Database = uow;
+        _mapper = mapper;
+        _passwordHasher = passwordHasher;
     }
+
+    private IUnitOfWork Database { get; }
 
     public void CreateCustomer(CustomerRegistrationDTO customerDto)
     {
-        var similar = Database.Customers.GetAll().FirstOrDefault(o =>
-            string.Equals(o.Email, customerDto.Email, StringComparison.OrdinalIgnoreCase));
+            if (Database.Customers.GetAll().Any(u => u.Email == customerDto.Email))
+                throw new ValidationException("User with this email is already exist",
+                    "Please, use another email for registration");
 
-        if (similar != null) throw new ValidationException("Customer with this email is exist", "");
+            customerDto.Password = _passwordHasher.Hash(customerDto.Password);
 
-        var customer = new Customer()
-        {
-            Name = customerDto.Name,
-            Email = customerDto.Email,
-            Password = customerDto.Password,
-            RegistrationDate = DateTime.Now
-        };
-        Database.Customers.Create(customer);
-        Database.Save();
+            Database.Customers.Create(_mapper.Map<Customer>(customerDto));
+
+            Database.Save();
     }
 
-    public CustomerDTO GetCustomer(CustomerLoginDTO customerLoginDto)
+    public CustomerDTO? GetCustomer(CustomerLoginDTO customerLoginDto)
     {
-        var customer = Database.Customers.GetAll().FirstOrDefault(o =>
-            string.Equals(o.Email, customerLoginDto.Email, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(o.Password, customerLoginDto.Password));
+        var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == customerLoginDto.Email);
 
-        if (customer != null)
-            return new CustomerDTO
-            {
-                CustomerId = customer.CustomerId,
-                Email = customer.Email,
-                Name = customer.Name,
-                RegistrationDate = customer.RegistrationDate,
-                Password = customer.Password
-            };
-        throw new ValidationException("Customer not found", "");
+        if (customer != null && !_passwordHasher.Verify(customer.Password, customerLoginDto.Password))
+            throw new ValidationException("User name or password is not correct",
+                "Check your email and password and try again");
+
+        return _mapper.Map<CustomerDTO>(customer);
     }
 
     public CustomerDTO GetCurrentCustomer(string email)
     {
-        var customer = Database.Customers.GetAll().FirstOrDefault(o =>
-            string.Equals(o.Name, email, StringComparison.OrdinalIgnoreCase));
+        var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == email);
 
-        if (customer != null)
-            return new CustomerDTO
-            {
-                CustomerId = customer.CustomerId,
-                Email = customer.Email,
-                Name = customer.Name,
-                RegistrationDate = customer.RegistrationDate,
-                Password = customer.Password
-            };
-        throw new ValidationException("Customer not found", "");
+        if (customer != null) return _mapper.Map<CustomerDTO>(customer);
+
+        throw new NotFoundException("User with this email not found",
+            "Check your email and try again");
     }
 
-    public IEnumerable<CustomerDTO> List()
+    public IQueryable<CustomerDTO> List()
     {
-        return Database.Customers.GetAll().Select(customer => new CustomerDTO
-        {
-            CustomerId = customer.CustomerId,
-            Email = customer.Email,
-            Name = customer.Name,
-            RegistrationDate = customer.RegistrationDate,
-            Password = customer.Password
-        });
+        return Database.Customers.GetAll().Select(customer => _mapper.Map<CustomerDTO>(customer));
     }
 
     public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email)
     {
-        if (string.Equals(newCustomer.OldPassword, newCustomer.NewPassword))
-            throw new ValidationException("the new and old passwords match", "");
+        if (newCustomer.OldPassword == newCustomer.NewPassword)
+            throw new ValidationException("The new and old passwords match",
+                "Think of new password for your account");
 
         var oldCustomer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email);
 
 
         if (oldCustomer != null)
         {
-            oldCustomer.Password = newCustomer.NewPassword;
+            oldCustomer.Password = _passwordHasher.Hash(newCustomer.NewPassword);
+
             Database.Save();
-            return new CustomerDTO
-            {
-                CustomerId = oldCustomer.CustomerId,
-                Email = oldCustomer.Email,
-                Name = oldCustomer.Name,
-                RegistrationDate = oldCustomer.RegistrationDate,
-                Password = oldCustomer.Password
-            };
+
+            return _mapper.Map<CustomerDTO>(oldCustomer);
         }
-        
-        throw new ValidationException("Customer not found", "");
+
+        throw new ValidationException("User with this data is not found",
+            "Check your email and try again");
     }
 
     public bool Delete(int id)
@@ -128,20 +107,14 @@ public class CustomerService : ICustomerService
 
     public CustomerDTO GetCustomerById(int? id)
     {
-        if (id == null) throw new ValidationException("Id not set", "");
+        if (id == null) throw new NullDataException("Id not set", "Unlucky");
 
         var customer = Database.Customers.Get(id.Value);
 
-        if (customer == null) throw new ValidationException("Customer not found", "");
+        if (customer == null) throw new ValidationException("Customer with this Id not found", 
+            "Check Id and try again");
 
-        return new CustomerDTO
-        {
-            CustomerId = customer.CustomerId,
-            Email = customer.Email,
-            Name = customer.Name,
-            RegistrationDate = customer.RegistrationDate,
-            Password = customer.Password
-        };
+        return _mapper.Map<CustomerDTO>(customer);
     }
 
     public void Dispose()

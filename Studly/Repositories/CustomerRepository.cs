@@ -17,9 +17,9 @@ namespace Studly.Repositories
         {
             db = context;
         }
-        public IEnumerable<Customer> GetAll()
+        public IQueryable<Customer> GetAll()
         {
-            return db.Customers;
+            return db.Customers.AsQueryable();
         }
 
         public Customer Get(int id)
