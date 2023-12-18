@@ -27,7 +27,7 @@ public class GlobalExceptionHandlingMiddleware
             }
             catch (ValidationException ve)
             {
-                await HandleExceptionAsync(context, ve.Message, HttpStatusCode.Forbidden,ve.MessageForUser);
+                await HandleExceptionAsync(context, ve.Message, HttpStatusCode.BadRequest,ve.MessageForUser);
             }
             catch (NullDataException nde)
             {
