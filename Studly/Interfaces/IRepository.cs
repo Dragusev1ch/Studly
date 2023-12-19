@@ -1,10 +1,11 @@
-﻿using Studly.Entities;
+﻿using Studly.DAL.Entities;
+using Studly.Entities;
 
 namespace Studly.Interfaces;
 
 public interface IRepository<T> where T : class
 {
-    IQueryable<Customer> GetAll();
+    IQueryable<T> GetAll();
     T Get(int id);
     IEnumerable<T> Find(Func<T,Boolean> predicate);
     void Create(T item);

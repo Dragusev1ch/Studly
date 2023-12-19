@@ -1,4 +1,6 @@
-﻿using Studly.Entities;
+﻿using Studly.DAL.EF;
+using Studly.DAL.Entities;
+using Studly.Entities;
 using Studly.Interfaces;
 
 namespace Studly.Repositories;
@@ -7,6 +9,7 @@ public class EFUnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext db;
     private  CustomerRepository customerRepository;
+    private ChallengeRepository challengeRepository;
     
     private bool disposed = false;
 
@@ -25,16 +28,17 @@ public class EFUnitOfWork : IUnitOfWork
         }
     }
 
+    public IRepository<Challenge> Challenges
+    {
+        get
+        {
+            if (challengeRepository == null) challengeRepository = new ChallengeRepository(db);
+
+            return challengeRepository;
+        }
+    }
     /*TODO Another Entities*/
 
-
-    
-
-    public IRepository<Challenge> Challenges { get; }
-    public IRepository<Clock> Clocks { get; }
-    public IRepository<Comment> Comments { get; }
-    public IRepository<Label> Labels { get; }
-    public IRepository<TaskLabel> TaskLabels { get; }
 
     public virtual void Dispose(bool disposing)
     {

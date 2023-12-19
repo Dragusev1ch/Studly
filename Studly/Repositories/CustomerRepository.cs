@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Studly.DAL.EF;
 using Studly.Entities;
 using Studly.Interfaces;
 
