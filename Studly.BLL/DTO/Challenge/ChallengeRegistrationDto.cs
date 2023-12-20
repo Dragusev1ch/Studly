@@ -1,5 +1,4 @@
-﻿using Studly.BLL.DTO.SubTask;
-using Studly.DAL.Enums;
+﻿using Studly.DAL.Enums;
 
 namespace Studly.BLL.DTO.Challenge;
 
@@ -10,5 +9,5 @@ public class ChallengeRegistrationDto
     public DateTime? Deadline { get; set; }
     public ChallengePriority Priority { get; set; }
     public ChallengeStatus Status { get; set; }
-    public List<SubTaskRegistrationDto> SubTasks { get; set; } = new();
+    public List<ChallengeRegistrationDto> SubTasks { get; set; } = new List<ChallengeRegistrationDto>();
 }

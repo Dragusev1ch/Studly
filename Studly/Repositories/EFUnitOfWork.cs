@@ -10,7 +10,6 @@ public class EFUnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext db;
     private  CustomerRepository _customerRepository;
     private ChallengeRepository _challengeRepository;
-    private SubTaskRepository _subTaskRepository;
     
     private bool _disposed;
 
@@ -39,15 +38,6 @@ public class EFUnitOfWork : IUnitOfWork
         }
     }
 
-    public IRepository<SubTask> SubTasks
-    {
-        get
-        {
-            if(_subTaskRepository == null) _subTaskRepository = new SubTaskRepository(db);
-
-            return _subTaskRepository;
-        }
-    }
     /*TODO Another Entities*/
 
 

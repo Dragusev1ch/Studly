@@ -32,5 +32,13 @@ namespace Studly.PL.Controllers
 
             return Ok();
         }
+
+        [HttpGet]
+        [Route("api/challenge")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetListOfChallenges()
+        {
+            return Ok(_challengeService.List());
+        }
     }
 }
