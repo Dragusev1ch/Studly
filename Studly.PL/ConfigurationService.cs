@@ -85,6 +85,7 @@ public class ConfigurationService
         services.AddScoped<IUnitOfWork, EFUnitOfWork>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IChallengeService, ChallengeService>();
     }
 
     public static void ConfigureCors(IServiceCollection services)

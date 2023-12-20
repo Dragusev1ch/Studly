@@ -15,7 +15,7 @@ namespace Studly.DAL.Entities
         public ChallengePriority Priority { get; set; }
         public ChallengeStatus Status { get; set; }
 
-        public ICollection<Challenge> SubTasks { get; set; } = new List<Challenge>();
+        public ICollection<SubTask> SubTasks { get; set; } = new List<SubTask>();
     }
 
 }

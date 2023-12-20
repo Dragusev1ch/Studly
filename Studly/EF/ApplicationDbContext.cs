@@ -13,4 +13,5 @@ public sealed class ApplicationDbContext : DbContext
     
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Challenge> Challenges { get; set; }
+    public DbSet<SubTask> SubTasks { get; set; }
 }

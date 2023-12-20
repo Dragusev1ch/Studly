@@ -13,7 +13,6 @@ namespace Studly.Repositories
     public class CustomerRepository : IRepository<Customer>
     {
         private readonly ApplicationDbContext db;
-
         public CustomerRepository(ApplicationDbContext context)
         {
             db = context;
