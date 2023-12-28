@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Studly.BLL.DTO.Customer;
-using Studly.BLL.Infrastructure;
 using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces.Services;
 using Studly.BLL.Services;
-using Studly.Entities;
 
 namespace Studly.PL.Controllers;
 
@@ -55,6 +53,23 @@ public class CustomerController : ControllerBase
     public IActionResult GetListOfCustomers()
     {
         return Ok(_customerService.List());
+    }
+
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("api/my_challenges")]
+    public IActionResult GetListOfChallenges()
+    {
+        var customerEmail = User.FindFirst(ClaimTypes.Email);
+
+        if (customerEmail == null) throw new ValidationException("User with this email not found",
+            "Check your email and try again");
+
+        var tasks = _customerService.GetCustomerChallenges(customerEmail.Value);
+
+        if (tasks == null) return Ok("Your collection of tasks is still empty");
+
+        return Ok(tasks);
     }
 
     [HttpPut]

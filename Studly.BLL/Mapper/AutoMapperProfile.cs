@@ -10,8 +10,11 @@ namespace Studly.BLL.Mapper
     {
         public AutoMapperProfile()
         {   
-            CreateMap<Customer, CustomerDTO>();
-            CreateMap<CustomerDTO, Customer>();
+            CreateMap<Customer, CustomerDto>();
+            CreateMap<CustomerDto, Customer>();
+
+            CreateMap<Customer, CustomerListDto>();
+            CreateMap<CustomerListDto, Customer>();
 
             CreateMap<Customer, CustomerRegistrationDTO>();
             CreateMap<CustomerRegistrationDTO, Customer>();

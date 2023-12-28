@@ -4,7 +4,7 @@ namespace Studly.BLL.Interfaces.Services;
 
 public interface IChallengeService
 {
-    public void CreateChallenge(ChallengeRegistrationDto challengeDto);
+    public void CreateChallenge(ChallengeRegistrationDto challengeDto,string email);
     public ChallengeDto? GetChallenge(string title);
     public ChallengeDto GetChallengeById(int id);
     public ChallengeDto GetCurrentChallenge(string title);

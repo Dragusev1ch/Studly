@@ -39,6 +39,7 @@ public class ChallengeRepository : IRepository<Challenge>
     public void Update(Challenge item)
     {
         db.Entry(item).State = EntityState.Modified;
+        db.SaveChanges();
     }
 
     public void Delete(int id)

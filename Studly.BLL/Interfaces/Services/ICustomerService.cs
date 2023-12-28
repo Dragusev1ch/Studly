@@ -1,16 +1,18 @@
-﻿using Studly.BLL.DTO.Customer;
+﻿using Studly.BLL.DTO.Challenge;
+using Studly.BLL.DTO.Customer;
 
 namespace Studly.BLL.Interfaces.Services;
 
 public interface ICustomerService
 {
     public void CreateCustomer(CustomerRegistrationDTO customerDto);
-    public CustomerDTO? GetCustomer(CustomerLoginDTO  customerLoginDto);
-    public CustomerDTO GetCurrentCustomer(string email);
-    public IQueryable<CustomerDTO> List();
-    public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email);
+    public CustomerDto? GetCustomer(CustomerLoginDTO  customerLoginDto);
+    public CustomerDto GetCurrentCustomer(string email);
+    public IQueryable<CustomerListDto> List();
+    public IQueryable<ChallengeDto>? GetCustomerChallenges(string email);
+    public CustomerDto Update(CustomerUpdateDTO newCustomer, string email);
     public bool Delete(int id);
     public bool DeleteCurrentCustomer(string customerName);
-    CustomerDTO GetCustomerById(int? id);
+    CustomerDto GetCustomerById(int? id);
     void Dispose();
 }

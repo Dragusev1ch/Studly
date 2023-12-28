@@ -2,9 +2,9 @@
 
 public enum ChallengeStatus
 {
-    NotStarted,
-    InProcess,
-    Completed,
-    OnHold,
-    Cancelled
+    NotStarted = 1,
+    InProcess = 2,
+    Completed = 3,
+    OnHold = 4,
+    Cancelled = 5
 }

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
+using Studly.BLL.DTO.Challenge;
 using Studly.BLL.DTO.Customer;
 using Studly.BLL.Infrastructure;
 using Studly.BLL.Infrastructure.Exceptions;
@@ -37,7 +39,7 @@ public class CustomerService : ICustomerService
             Database.Save();
     }
 
-    public CustomerDTO? GetCustomer(CustomerLoginDTO customerLoginDto)
+    public CustomerDto? GetCustomer(CustomerLoginDTO customerLoginDto)
     {
         var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == customerLoginDto.Email);
 
@@ -45,25 +47,36 @@ public class CustomerService : ICustomerService
             throw new ValidationException("User name or password is not correct",
                 "Check your email and password and try again");
 
-        return _mapper.Map<CustomerDTO>(customer);
+        return _mapper.Map<CustomerDto>(customer);
     }
 
-    public CustomerDTO GetCurrentCustomer(string email)
+    public CustomerDto GetCurrentCustomer(string email)
     {
         var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == email);
 
-        if (customer != null) return _mapper.Map<CustomerDTO>(customer);
+        if (customer != null) return _mapper.Map<CustomerDto>(customer);
 
         throw new NotFoundException("User with this email not found",
             "Check your email and try again");
     }
 
-    public IQueryable<CustomerDTO> List()
+    public IQueryable<CustomerListDto> List()
     {
-        return Database.Customers.GetAll().Select(customer => _mapper.Map<CustomerDTO>(customer));
+        return Database.Customers.GetAll().Select(customer => _mapper.Map<CustomerListDto>(customer));
     }
 
-    public CustomerDTO Update(CustomerUpdateDTO newCustomer, string email)
+    public IQueryable<ChallengeDto>? GetCustomerChallenges(string email)
+    {
+        var customer = Database.Customers.GetAll().FirstOrDefault(customer => customer.Email == email);
+
+        if (customer == null)
+            throw new NotFoundException("Current user was not found in our database",
+                "It`s bug)");
+
+        return customer.Tasks.Select(challenge => _mapper.Map<ChallengeDto>(challenge)) as IQueryable<ChallengeDto>;
+    }
+
+    public CustomerDto Update(CustomerUpdateDTO newCustomer, string email)
     {
         if (newCustomer.OldPassword == newCustomer.NewPassword)
             throw new ValidationException("The new and old passwords match",
@@ -78,7 +91,7 @@ public class CustomerService : ICustomerService
 
             Database.Save();
 
-            return _mapper.Map<CustomerDTO>(oldCustomer);
+            return _mapper.Map<CustomerDto>(oldCustomer);
         }
 
         throw new ValidationException("User with this data is not found",
@@ -105,7 +118,7 @@ public class CustomerService : ICustomerService
         return true;
     }
 
-    public CustomerDTO GetCustomerById(int? id)
+    public CustomerDto GetCustomerById(int? id)
     {
         if (id == null) throw new NullDataException("Id not set", "Unlucky");
 
@@ -114,7 +127,7 @@ public class CustomerService : ICustomerService
         if (customer == null) throw new ValidationException("Customer with this Id not found", 
             "Check Id and try again");
 
-        return _mapper.Map<CustomerDTO>(customer);
+        return _mapper.Map<CustomerDto>(customer);
     }
 
     public void Dispose()

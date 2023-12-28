@@ -5,6 +5,7 @@ using Studly.BLL.DTO.Challenge;
 using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces.Services;
 using Studly.BLL.Services;
+using System.Security.Claims;
 
 namespace Studly.PL.Controllers
 {
@@ -28,9 +29,14 @@ namespace Studly.PL.Controllers
             if (challenge == null) throw new NullDataException("Challenge data is null",
                     "Enter information for create challenge");
 
-            _challengeService.CreateChallenge(challenge);
+            var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-            return Ok();
+            if (customerEmail == null) throw new ValidationException("User with this email not found",
+                "Check your email and try again");
+
+            _challengeService.CreateChallenge(challenge,customerEmail.Value);
+
+            return Ok(/*_challengeService.GetCurrentChallenge(challenge.Title)*/);
         }
 
         [HttpGet]

@@ -18,10 +18,21 @@ public class ChallengeService : IChallengeService
         _database = uof;
     }
 
-    public void CreateChallenge(ChallengeRegistrationDto challengeDto)
+    public void CreateChallenge(ChallengeRegistrationDto challengeDto,string email)
     {
-        _database.Challenges.Create(_mapper.Map<Challenge>(challengeDto));
+        var challenge = _mapper.Map<Challenge>(challengeDto);
 
+        _database.Challenges.Create(challenge);
+
+        var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == email);
+
+        if (customer == null)
+            throw new NullDataException("Customer not found",
+                "Information about you is not exist in database");
+
+        customer.Tasks.Add(challenge);
+
+        _database.Customers.Update(customer);
         _database.Save();
     }
 

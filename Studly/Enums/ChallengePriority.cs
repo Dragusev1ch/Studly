@@ -7,5 +7,4 @@ public enum ChallengePriority
     Medium = 3,
     High = 4,
     Highest = 5
-
 }

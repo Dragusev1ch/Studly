@@ -42,7 +42,7 @@ public class LoginController : ControllerBase
     }
 
 
-    private Token GenerateToken(CustomerDTO customer)
+    private Token GenerateToken(CustomerDto customer)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
