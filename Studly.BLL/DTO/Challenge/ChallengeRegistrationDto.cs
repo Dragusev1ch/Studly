@@ -9,5 +9,5 @@ public class ChallengeRegistrationDto
     public DateTime? Deadline { get; set; }
     public ChallengePriority Priority { get; set; }
     public ChallengeStatus Status { get; set; }
-    public List<ChallengeRegistrationDto> SubTasks { get; set; } = new List<ChallengeRegistrationDto>();
+    public List<ChallengeRegistrationDto> SubTasks { get; set; } = new();
 }

@@ -9,5 +9,10 @@ public class ChallengeDto
     public DateTime? DeadLine { get; set; }
     public ChallengePriority Priority { get; set; }
     public ChallengeStatus Status { get; set; }
-    public List<ChallengeRegistrationDto> SubTasks { get; set; } 
+
+    public int CustomerId { get; set; }
+    public int? ParentChallengeId { get; set; }
+
+
+    public List<ChallengeRegistrationDto> SubTasks { get; set; }
 }

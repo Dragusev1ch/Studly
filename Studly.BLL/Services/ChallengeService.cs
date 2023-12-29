@@ -21,32 +21,33 @@ public class ChallengeService : IChallengeService
     public void CreateChallenge(ChallengeRegistrationDto challengeDto,string email)
     {
         var challenge = _mapper.Map<Challenge>(challengeDto);
-
-        _database.Challenges.Create(challenge);
-
         var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == email);
 
         if (customer == null)
             throw new NullDataException("Customer not found",
                 "Information about you is not exist in database");
 
-        customer.Tasks.Add(challenge);
+        challenge.CustomerId = customer.CustomerId;
+        challenge.Customer = customer;
 
-        _database.Customers.Update(customer);
+        _database.Challenges.Create(challenge);
         _database.Save();
     }
 
     public ChallengeDto? GetChallenge(string title)
     {
-        throw new NotImplementedException();
+        var challenge = _database.Challenges
+            .GetAll()
+            .FirstOrDefault(challenge => challenge.Title == title);
+
+        if (challenge == null)
+            throw new NullDataException("Challenge not found",
+                "Information about challenge with this name is exist");
+
+        return _mapper.Map<ChallengeDto>(challenge);
     }
 
     public ChallengeDto GetChallengeById(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ChallengeDto GetCurrentChallenge(string title)
     {
         throw new NotImplementedException();
     }

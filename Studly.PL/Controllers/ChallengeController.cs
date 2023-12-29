@@ -36,7 +36,7 @@ namespace Studly.PL.Controllers
 
             _challengeService.CreateChallenge(challenge,customerEmail.Value);
 
-            return Ok(/*_challengeService.GetCurrentChallenge(challenge.Title)*/);
+            return Ok(_challengeService.GetChallenge(challenge.Title));
         }
 
         [HttpGet]
