@@ -31,7 +31,26 @@ public class ChallengeService : IChallengeService
         challenge.Customer = customer;
 
         _database.Challenges.Create(challenge);
+
+
+
         _database.Save();
+    }
+
+    private List<Challenge> FindSubtask(ChallengeDto challenge)
+    {
+        return challenge.SubTasks
+            .Select(sub => _mapper.Map<Challenge>(sub)).ToList(); 
+    }
+
+    private void CreateSubtask(List<Challenge> list)
+    {
+        if(list.Count == 0) return;
+
+        foreach (var item in list)
+        {
+            _database.Challenges.Create(item);
+        }
     }
 
     public ChallengeDto? GetChallenge(string title)

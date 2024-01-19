@@ -65,7 +65,7 @@ public class CustomerService : ICustomerService
         return Database.Customers.GetAll().Select(customer => _mapper.Map<CustomerListDto>(customer));
     }
 
-    public IQueryable<ChallengeDto>? GetCustomerChallenges(string email)
+    public IQueryable<ChallengeDto> GetCustomerChallenges(string email)
     {
         var customer = Database.Customers.GetAll().FirstOrDefault(customer => customer.Email == email);
 
@@ -73,7 +73,12 @@ public class CustomerService : ICustomerService
             throw new NotFoundException("Current user was not found in our database",
                 "It`s bug)");
 
-        return customer.Tasks.Select(challenge => _mapper.Map<ChallengeDto>(challenge)) as IQueryable<ChallengeDto>;
+        var challenges = Database.Challenges.GetAll()
+            .Where(o => o.CustomerId == customer.CustomerId)
+            .Select(challenge => _mapper.Map<ChallengeDto>(challenge))
+            .AsQueryable();
+
+        return challenges;
     }
 
     public CustomerDto Update(CustomerUpdateDTO newCustomer, string email)
