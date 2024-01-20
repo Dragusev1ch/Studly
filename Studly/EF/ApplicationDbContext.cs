@@ -44,13 +44,14 @@ public sealed class ApplicationDbContext : DbContext
             .HasOne(c => c.ParentChallenge)
             .WithMany(c => c.SubTasks)
             .HasForeignKey(c => c.ParentChallengeId)
-            .OnDelete(DeleteBehavior.Restrict); // Handling Cascade Delete
+            .OnDelete(DeleteBehavior.Cascade); // Handling Cascade Delete
 
         // Challenge-Customer: Many-to-one relationship
         modelBuilder.Entity<Challenge>()
             .HasOne(c => c.Customer)
             .WithMany(c => c.Tasks)
-            .HasForeignKey(c => c.CustomerId);
+            .HasForeignKey(c => c.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Ensuring email is unique and indexed
         modelBuilder.Entity<Customer>()
