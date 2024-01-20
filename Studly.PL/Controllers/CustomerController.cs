@@ -10,6 +10,7 @@ using Studly.BLL.Services;
 namespace Studly.PL.Controllers;
 
 [ApiController]
+[Route("api")]
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
@@ -22,50 +23,45 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost]
-    [Route("api/customer")]
+    [Route("customer")]
     [AllowAnonymous]
-    public IActionResult CreateCustomer([FromBody] CustomerRegistrationDTO customer)
+    public IActionResult Create([FromBody] CustomerRegistrationDTO customer)
     {
-            if (customer == null) throw new NullDataException("User data is null",
+        if (customer == null)
+            throw new NullDataException("User data is null",
                 "Enter information for create account");
 
-            _customerService.CreateCustomer(customer);
+        _customerService.Create(customer);
 
-            return Ok(_customerService.GetCurrentCustomer(customer.Email));
+        return Ok(_customerService.GetCurrent(customer.Email));
     }
 
     [HttpGet]
-    [Route("api/customer")]
+    [Route("customer")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public IActionResult GetCurrentCustomer()
+    public IActionResult GetCurrent()
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("User with this email not found",
-            "Check your email and try again");
+        if (customerEmail == null)
+            throw new ValidationException("User with this email not found",
+                "Check your email and try again");
 
-        return Ok(_customerService.GetCurrentCustomer(customerEmail.Value));
+        return Ok(_customerService.GetCurrent(customerEmail.Value));
     }
 
     [HttpGet]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/customers")]
-    public IActionResult GetListOfCustomers()
-    {
-        return Ok(_customerService.List());
-    }
-
-    [HttpGet]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/my_challenges")]
-    public IActionResult GetListOfChallenges()
+    [Route("my-challenges")]
+    public IActionResult GetAllUserChallenges()
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("User with this email not found",
-            "Check your email and try again");
+        if (customerEmail == null)
+            throw new ValidationException("User with this email not found",
+                "Check your email and try again");
 
-        var tasks = _customerService.GetCustomerChallenges(customerEmail.Value);
+        var tasks = _customerService.GetChallenges(customerEmail.Value);
 
         if (tasks == null) return Ok("Your collection of tasks is still empty");
 
@@ -73,28 +69,30 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPut]
-    [Route("api/customer")]
+    [Route("customer")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public IActionResult UpdateCustomer(CustomerUpdateDTO newCustomer)
+    public IActionResult UpdatePassword(CustomerPassUpdateDto newCustomerPass)
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("User with this email not found",
-            "Check your email and try again");
+        if (customerEmail == null)
+            throw new ValidationException("User with this email not found",
+                "Check your email and try again");
 
-        return Ok(_customerService.Update(newCustomer, customerEmail.Value));
+        return Ok(_customerService.Update(newCustomerPass, customerEmail.Value));
     }
 
     [HttpDelete]
-    [Route("api/customer")]
+    [Route("customer")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public IActionResult DeleteCurrentCustomer()
+    public IActionResult DeleteCurrent()
     {
         var customerEmail = User.FindFirst(ClaimTypes.Email);
 
-        if (customerEmail == null) throw new ValidationException("User with this email not found",
-            "Check your email and try again");
+        if (customerEmail == null)
+            throw new ValidationException("User with this email not found",
+                "Check your email and try again");
 
-        return Ok(_customerService.DeleteCurrentCustomer(customerEmail.Value));
+        return Ok(_customerService.Delete(customerEmail.Value));
     }
 }

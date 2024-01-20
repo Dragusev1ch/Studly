@@ -3,16 +3,12 @@ using Studly.BLL.DTO.Customer;
 
 namespace Studly.BLL.Interfaces.Services;
 
-public interface ICustomerService
+public interface ICustomerService : IDisposable
 {
-    public void CreateCustomer(CustomerRegistrationDTO customerDto);
-    public CustomerDto? GetCustomer(CustomerLoginDTO  customerLoginDto);
-    public CustomerDto GetCurrentCustomer(string email);
-    public IQueryable<CustomerListDto> List();
-    public IQueryable<ChallengeDto>? GetCustomerChallenges(string email);
-    public CustomerDto Update(CustomerUpdateDTO newCustomer, string email);
-    public bool Delete(int id);
-    public bool DeleteCurrentCustomer(string customerName);
-    CustomerDto GetCustomerById(int? id);
-    void Dispose();
+    public void Create(CustomerRegistrationDTO customerDto);
+    public CustomerDto? Get(CustomerLoginDTO customerLoginDto);
+    public CustomerDto GetCurrent(string email);
+    public IQueryable<ChallengeDto>? GetChallenges(string email);
+    public CustomerDto Update(CustomerPassUpdateDto newCustomerPass, string email);
+    public CustomerDto Delete(string email);
 }
