@@ -18,7 +18,7 @@ public class ChallengeService : IChallengeService
         _database = uof;
     }
 
-    public void CreateChallenge(ChallengeRegistrationDto challengeDto,string email)
+    public void Create(ChallengeRegistrationDto challengeDto,string email)
     {
         var challenge = _mapper.Map<Challenge>(challengeDto);
         var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == email);
@@ -37,13 +37,13 @@ public class ChallengeService : IChallengeService
         _database.Save();
     }
 
-    private List<Challenge> FindSubtask(ChallengeDto challenge)
+    private List<Challenge> Find(ChallengeDto challenge)
     {
         return challenge.SubTasks
             .Select(sub => _mapper.Map<Challenge>(sub)).ToList(); 
     }
 
-    private void CreateSubtask(List<Challenge> list)
+    private void AddSubtask(List<Challenge> list)
     {
         if(list.Count == 0) return;
 
@@ -53,7 +53,7 @@ public class ChallengeService : IChallengeService
         }
     }
 
-    public ChallengeDto? GetChallenge(string title)
+    public ChallengeDto? Get(string title)
     {
         var challenge = _database.Challenges
             .GetAll()
@@ -66,7 +66,7 @@ public class ChallengeService : IChallengeService
         return _mapper.Map<ChallengeDto>(challenge);
     }
 
-    public ChallengeDto GetChallengeById(int id)
+    public ChallengeDto GetById(int id)
     {
         throw new NotImplementedException();
     }

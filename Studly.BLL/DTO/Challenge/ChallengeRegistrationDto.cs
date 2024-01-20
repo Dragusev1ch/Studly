@@ -5,6 +5,8 @@ namespace Studly.BLL.DTO.Challenge;
 
 public class ChallengeRegistrationDto
 {
+    public int? ParentChallengeId { get; set; }
+
     [Required]
     [StringLength(50, ErrorMessage = "Title limit is 50 chars!")]
     public string Title { get; set; }

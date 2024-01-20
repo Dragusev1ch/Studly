@@ -4,9 +4,9 @@ namespace Studly.BLL.Interfaces.Services;
 
 public interface IChallengeService
 {
-    public void CreateChallenge(ChallengeRegistrationDto challengeDto,string email);
-    public ChallengeDto? GetChallenge(string title);
-    public ChallengeDto GetChallengeById(int id);
+    public void Create(ChallengeRegistrationDto challengeDto,string email);
+    public ChallengeDto? Get(string title);
+    public ChallengeDto GetById(int id);
     public IQueryable<ChallengeDto> List();
     public ChallengeDto Update(ChallengeUpdateDto newChallenge, string title);
     public bool Delete(int id);
