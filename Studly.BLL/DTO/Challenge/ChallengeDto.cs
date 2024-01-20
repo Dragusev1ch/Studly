@@ -16,5 +16,5 @@ public class ChallengeDto
     public int? ParentChallengeId { get; set; }
 
 
-    public List<ChallengeRegistrationDto> SubTasks { get; set; }
+    public List<ChallengeDto> SubTasks { get; set; }
 }
