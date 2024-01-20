@@ -21,19 +21,14 @@ public class ChallengeRepository : IRepository<Challenge>
         return db.Challenges.AsQueryable();
     }
 
-    public Challenge Get(int id)
-    {
-        return db.Challenges.Find(id);
-    }
-
     public IEnumerable<Challenge> Find(Func<Challenge, bool> predicate)
     {
         return db.Challenges.Where(predicate).ToList();
     }
 
-    public void Create(Challenge item)
+    public Challenge Create(Challenge item)
     {
-        db.Challenges.Add(item);
+        return db.Challenges.Add(item).Entity;
     }
 
     public void Update(Challenge item)

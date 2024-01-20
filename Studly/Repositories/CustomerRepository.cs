@@ -22,19 +22,14 @@ namespace Studly.Repositories
             return db.Customers.AsQueryable();
         }
 
-        public Customer Get(int id)
-        {
-            return db.Customers.Find(id);
-        }
-
         public IEnumerable<Customer> Find(Func<Customer, bool> predicate)
         {
             return db.Customers.Where(predicate).ToList();
         }
 
-        public void Create(Customer item)
+        public Customer Create(Customer item)
         {
-            db.Customers.Add(item);
+            return db.Customers.Add(item).Entity;
         }
 
         public void Update(Customer item)

@@ -14,12 +14,14 @@ namespace Studly.PL.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
+    private readonly IChallengeService _challengeService;
     private readonly ILogger<CustomerService> _logger;
 
-    public CustomerController(ICustomerService customerService, ILogger<CustomerService> logger)
+    public CustomerController(ICustomerService customerService, ILogger<CustomerService> logger, IChallengeService challengeService)
     {
         _customerService = customerService;
         _logger = logger;
+        _challengeService = challengeService;
     }
 
     [HttpPost]
@@ -61,7 +63,7 @@ public class CustomerController : ControllerBase
             throw new ValidationException("User with this email not found",
                 "Check your email and try again");
 
-        var tasks = _customerService.GetChallenges(customerEmail.Value);
+        var tasks = _challengeService.GetUserList(customerEmail.Value);
 
         if (tasks == null) return Ok("Your collection of tasks is still empty");
 

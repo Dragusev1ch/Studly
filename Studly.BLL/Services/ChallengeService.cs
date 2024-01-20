@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Studly.BLL.DTO.Challenge;
 using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces.Services;
@@ -9,71 +10,82 @@ namespace Studly.BLL.Services;
 
 public class ChallengeService : IChallengeService
 {
-    private readonly IMapper _mapper;
-    private readonly IUnitOfWork _database;
+    private readonly NullDataException _challengeNotFound = new("Challenge not found",
+        "Challenge does not found. It might be deleted or wrong id!");
 
-    public ChallengeService(IUnitOfWork uof,IMapper mapper)
+    private readonly NullDataException _customerNotFound = new("Parent challenge not found",
+        "Parent challenge does not found. It might be deleted!");
+
+    private readonly IUnitOfWork _database;
+    private readonly IMapper _mapper;
+
+
+    public ChallengeService(IUnitOfWork uof, IMapper mapper)
     {
         _mapper = mapper;
         _database = uof;
     }
 
-    public void Create(ChallengeRegistrationDto challengeDto,string email)
+
+    public ChallengeDto Create(ChallengeRegistrationDto challengeDto, string userEmail)
     {
         var challenge = _mapper.Map<Challenge>(challengeDto);
-        var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == email);
 
-        if (customer == null)
-            throw new NullDataException("Customer not found",
-                "Information about you is not exist in database");
+        // Link customer
+        var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == userEmail) ??
+                       throw _customerNotFound;
 
         challenge.CustomerId = customer.CustomerId;
         challenge.Customer = customer;
 
-        _database.Challenges.Create(challenge);
+        // Link parent
+        if (challengeDto.ParentChallengeId != null)
+        {
+            challenge.ParentChallengeId = challengeDto.ParentChallengeId;
+            challenge.ParentChallenge = GetChallengeById(challengeDto.ParentChallengeId!.Value);
+        }
 
+        // Null sub tasks to create a clear task and after separately add sub tasks
+        challenge.SubTasks.Clear();
 
+        // Add Challenge to DB
+        var entity = _database.Challenges.Create(challenge);
 
         _database.Save();
+
+        // Link to already created task list of sub tasks
+
+        if (challengeDto.Subtasks != null) CreateMany(challengeDto.Subtasks, userEmail, entity.Id);
+
+        return GetById(entity.Id);
     }
 
-    private List<Challenge> Find(ChallengeDto challenge)
+    public IEnumerable<ChallengeDto> GetUserList(string userEmail)
     {
-        return challenge.SubTasks
-            .Select(sub => _mapper.Map<Challenge>(sub)).ToList(); 
-    }
+        var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == userEmail) ??
+                       throw _customerNotFound;
 
-    private void AddSubtask(List<Challenge> list)
-    {
-        if(list.Count == 0) return;
+        var challenges = _database.Challenges.GetAll()
+            .Where(c => c.CustomerId == customer.CustomerId && c.ParentChallengeId == null)
+            .Include(c => c.SubTasks)
+            .Select(challenge => _mapper.Map<ChallengeDto>(challenge))
+            .AsEnumerable();
 
-        foreach (var item in list)
-        {
-            _database.Challenges.Create(item);
-        }
-    }
-
-    public ChallengeDto? Get(string title)
-    {
-        var challenge = _database.Challenges
-            .GetAll()
-            .FirstOrDefault(challenge => challenge.Title == title);
-
-        if (challenge == null)
-            throw new NullDataException("Challenge not found",
-                "Information about challenge with this name is exist");
-
-        return _mapper.Map<ChallengeDto>(challenge);
+        return challenges;
     }
 
     public ChallengeDto GetById(int id)
     {
-        throw new NotImplementedException();
+        return _mapper.Map<ChallengeDto>(GetChallengeById(id));
     }
 
-    public IQueryable<ChallengeDto> List()
+    public IEnumerable<ChallengeDto> GetList()
     {
-        return _database.Challenges.GetAll().Select(challenge => _mapper.Map<ChallengeDto>(challenge));
+        return _database.Challenges.GetAll()
+            .Where(c => c.ParentChallengeId == null)
+            .Include(c => c.SubTasks)
+            .Select(c => _mapper.Map<ChallengeDto>(c))
+            .AsEnumerable();
     }
 
     public ChallengeDto Update(ChallengeUpdateDto newChallenge, string title)
@@ -88,6 +100,22 @@ public class ChallengeService : IChallengeService
 
     public void Dispose()
     {
-        throw new NotImplementedException();
+        _database.Dispose();
+    }
+
+    private void CreateMany(List<ChallengeRegistrationDto> challenges, string userEmail, int? parentId)
+    {
+        foreach (var challenge in challenges)
+        {
+            challenge.ParentChallengeId = parentId;
+            Create(challenge, userEmail);
+        }
+    }
+
+    private Challenge GetChallengeById(int id)
+    {
+        return _database.Challenges.GetAll()
+            .Include(c => c.SubTasks)
+            .SingleOrDefault(c => c.Id == id) ?? throw _challengeNotFound;
     }
 }

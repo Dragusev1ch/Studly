@@ -16,7 +16,7 @@ public class CustomerService : ICustomerService
 
 
     /// <summary>
-    ///     List of exceptions
+    ///     GetList of exceptions
     /// </summary>
     private readonly ValidationException _alreadyExist = new("User with this email is already exist",
         "Please, use another email for registration");
@@ -67,19 +67,6 @@ public class CustomerService : ICustomerService
         var customer = Database.Customers.GetAll().FirstOrDefault(o => o.Email == email);
 
         return customer == null ? throw _userNotFound : _mapper.Map<CustomerDto>(customer);
-    }
-
-    public IQueryable<ChallengeDto> GetChallenges(string email)
-    {
-        var customer = Database.Customers.GetAll().FirstOrDefault(customer => customer.Email == email) ??
-                       throw _invalidUser;
-
-        var challenges = Database.Challenges.GetAll()
-            .Where(o => o.CustomerId == customer.CustomerId)
-            .Select(challenge => _mapper.Map<ChallengeDto>(challenge))
-            .AsQueryable();
-
-        return challenges;
     }
 
     public CustomerDto Update(CustomerPassUpdateDto newCustomerPass, string email)

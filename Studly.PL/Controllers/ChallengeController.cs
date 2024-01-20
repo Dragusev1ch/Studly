@@ -37,8 +37,8 @@ public class ChallengeController : Controller
             throw new ValidationException("User with this email not found",
                 "Check your email and try again");
 
-        _challengeService.Create(challenge, customerEmail.Value);
+        var res = _challengeService.Create(challenge, customerEmail.Value);
 
-        return Ok(_challengeService.Get(challenge.Title));
+        return Ok(res);
     }
 }

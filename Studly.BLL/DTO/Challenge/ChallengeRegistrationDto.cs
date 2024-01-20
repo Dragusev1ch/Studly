@@ -19,4 +19,6 @@ public class ChallengeRegistrationDto
     [Required] public ChallengePriority Priority { get; set; }
 
     public ChallengeStatus Status { get; set; } = ChallengeStatus.NotStarted;
+
+    public List<ChallengeRegistrationDto>? Subtasks { get; set; }
 }
