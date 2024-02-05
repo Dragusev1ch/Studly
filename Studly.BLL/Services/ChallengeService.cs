@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Studly.BLL.DTO;
 using Studly.BLL.DTO.Challenge;
 using Studly.BLL.Infrastructure.Exceptions;
 using Studly.BLL.Interfaces.Services;
 using Studly.DAL.Entities;
+using Studly.DAL.Enums;
 using Studly.Interfaces;
 
 namespace Studly.BLL.Services;
@@ -72,6 +74,44 @@ public class ChallengeService : IChallengeService
             .AsEnumerable();
 
         return challenges;
+    }
+
+    public IEnumerable<ChallengeDto>? GetUserList(string userEmail, int offset, int count, bool? completedVisible,
+        bool? sortByPriority,
+        DateVariants? date, ChallengeStatus? sortByStatus)
+    {
+        var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == userEmail) ??
+                       throw _customerNotFound;
+
+        var request = _database.Challenges.GetAll()
+            .Where(c => c.CustomerId == customer.CustomerId && c.ParentChallengeId == null);
+
+        if (completedVisible.HasValue && completedVisible.Value)
+            request = request.Where(c => c.Status != ChallengeStatus.Completed);
+        if (date.HasValue)
+            request = date switch
+            {
+                DateVariants.Today => request.Where(c => c.Deadline != null && c.Deadline.Value.Date == DateTime.Today),
+                DateVariants.Tomorrow => request.Where(c =>
+                    c.Deadline != null && c.Deadline.Value.Date == DateTime.Today.AddDays(1)),
+                DateVariants.Month => request.Where(c =>
+                    c.Deadline != null && c.Deadline.Value.Date < DateTime.Today.AddDays(32)),
+                _ => request
+            };
+        if (sortByStatus.HasValue)
+            request = request.Where(c => c.Status == sortByStatus);
+        if (sortByPriority.HasValue && sortByPriority.Value)
+            request = request.OrderByDescending(c => c.Priority);
+
+        var list = request
+            .Skip(offset)
+            .Take(count)
+            .Include(c => c.SubTasks)
+            .Select(challenge => _mapper.Map<ChallengeDto>(challenge))
+            .AsEnumerable();
+
+
+        return list;
     }
 
     public ChallengeDto GetById(int id)

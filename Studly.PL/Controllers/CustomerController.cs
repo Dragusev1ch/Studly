@@ -14,14 +14,12 @@ namespace Studly.PL.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
-    private readonly IChallengeService _challengeService;
     private readonly ILogger<CustomerService> _logger;
 
-    public CustomerController(ICustomerService customerService, ILogger<CustomerService> logger, IChallengeService challengeService)
+    public CustomerController(ICustomerService customerService, ILogger<CustomerService> logger)
     {
         _customerService = customerService;
         _logger = logger;
-        _challengeService = challengeService;
     }
 
     [HttpPost]
@@ -50,24 +48,6 @@ public class CustomerController : ControllerBase
                 "Check your email and try again");
 
         return Ok(_customerService.GetCurrent(customerEmail.Value));
-    }
-
-    [HttpGet]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("my-challenges")]
-    public IActionResult GetAllUserChallenges()
-    {
-        var customerEmail = User.FindFirst(ClaimTypes.Email);
-
-        if (customerEmail == null)
-            throw new ValidationException("User with this email not found",
-                "Check your email and try again");
-
-        var tasks = _challengeService.GetUserList(customerEmail.Value);
-
-        if (tasks == null) return Ok("Your collection of tasks is still empty");
-
-        return Ok(tasks);
     }
 
     [HttpPut]
