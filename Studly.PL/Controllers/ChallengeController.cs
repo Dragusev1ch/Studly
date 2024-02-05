@@ -16,12 +16,15 @@ namespace Studly.PL.Controllers;
 public class ChallengeController : Controller
 {
     private readonly IChallengeService _challengeService;
+    private readonly ICustomerService _customerService;
     private readonly ILogger<ChallengeService> _logger;
 
-    public ChallengeController(IChallengeService challengeService, ILogger<ChallengeService> logger)
+    public ChallengeController(IChallengeService challengeService, ILogger<ChallengeService> logger,
+        ICustomerService customerService)
     {
         _challengeService = challengeService;
         _logger = logger;
+        _customerService = customerService;
     }
 
     [HttpPost]
@@ -59,5 +62,49 @@ public class ChallengeController : Controller
             date, sortByStatus);
 
         return Ok(tasks);
+    }
+
+    [HttpPut]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public IActionResult UpdateInfo([FromQuery] int id, [FromBody] ChallengeUpdateDto data)
+    {
+        var customerEmail = GetUserEmailFromToken();
+
+        EnsureChallengeBelongToUser(customerEmail, id);
+
+        var updated = _challengeService.Update(data, id);
+
+        return Ok(updated);
+    }
+
+    [HttpDelete]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public IActionResult Delete([FromQuery] int id)
+    {
+        var customerEmail = GetUserEmailFromToken();
+
+        EnsureChallengeBelongToUser(customerEmail, id);
+
+        var updated = _challengeService.Delete(id);
+
+        return Ok(updated);
+    }
+
+    private void EnsureChallengeBelongToUser(string email, int challengeId)
+    {
+        if (_customerService.GetCurrent(email).Id == _challengeService.GetById(challengeId).CustomerId)
+            throw new NotFoundException("Challenge do not found in users list",
+                "Challenge id is wrong it's not belong to current user!");
+    }
+
+    private string GetUserEmailFromToken()
+    {
+        var customerEmail = User.FindFirst(ClaimTypes.Email);
+
+        if (customerEmail == null)
+            throw new ValidationException("User with this email not found",
+                "Check your email and try again");
+
+        return customerEmail.Value;
     }
 }

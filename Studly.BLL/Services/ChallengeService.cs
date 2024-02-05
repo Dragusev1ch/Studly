@@ -17,6 +17,9 @@ public class ChallengeService : IChallengeService
 
     private readonly NullDataException _customerNotFound = new("Parent challenge not found",
         "Parent challenge does not found. It might be deleted!");
+    
+    private readonly LoginException _userDoNotHaveThisChallenge = new("This challenge does not belong to user!",
+        "This is might be site error!");
 
     private readonly IUnitOfWork _database;
     private readonly IMapper _mapper;
@@ -128,14 +131,30 @@ public class ChallengeService : IChallengeService
             .AsEnumerable();
     }
 
-    public ChallengeDto Update(ChallengeUpdateDto newChallenge, string title)
+    public ChallengeDto Update(ChallengeUpdateDto newChallenge, int id)
     {
-        throw new NotImplementedException();
+        var entity = GetChallengeById(id);
+
+        if (!string.IsNullOrEmpty(newChallenge.Title)) entity.Title = newChallenge.Title;
+        if (!string.IsNullOrEmpty(newChallenge.Description)) entity.Description = newChallenge.Description;
+        if (newChallenge.DeadLine.HasValue) entity.Deadline = newChallenge.DeadLine;
+        if (newChallenge.Status.HasValue) entity.Status = newChallenge.Status.Value;
+        if (newChallenge.Priority.HasValue) entity.Priority = newChallenge.Priority.Value;
+
+        _database.Challenges.Update(entity);
+
+        _database.Save();
+
+        return GetById(id);
     }
 
     public bool Delete(int id)
     {
-        throw new NotImplementedException();
+        _database.Challenges.Delete(id);
+
+        _database.Save();
+
+        return !_database.Challenges.GetAll().Any(c => c.Id == id);
     }
 
     public void Dispose()

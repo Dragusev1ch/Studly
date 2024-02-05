@@ -15,7 +15,8 @@ public interface IChallengeService
 
     public ChallengeDto GetById(int id);
     public IEnumerable<ChallengeDto> GetList();
-    public ChallengeDto Update(ChallengeUpdateDto newChallenge, string title);
+    public ChallengeDto Update(ChallengeUpdateDto newChallenge, int id);
     public bool Delete(int id);
+
     void Dispose();
 }
