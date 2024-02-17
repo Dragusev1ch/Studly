@@ -175,6 +175,7 @@ public class ChallengeService : IChallengeService
     {
         return _database.Challenges.GetAll()
             .Include(c => c.SubTasks)
+            .ThenInclude(c => c.SubTasks)
             .SingleOrDefault(c => c.Id == id) ?? throw _challengeNotFound;
     }
 }

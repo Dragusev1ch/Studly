@@ -47,6 +47,7 @@ public class ChallengeController : Controller
     }
 
     [HttpGet]
+    [Route("/api/challenges")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public IActionResult GetUserChallenges([FromQuery] int offset, [FromQuery] int count,
         [FromQuery] bool? completedVisible, [FromQuery] bool? sortByPriority, [FromQuery] DateVariants? date,
@@ -62,6 +63,19 @@ public class ChallengeController : Controller
             date, sortByStatus);
 
         return Ok(tasks);
+    }
+
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public IActionResult GetUserChallenges([FromQuery] int id)
+    {
+        var customerEmail = GetUserEmailFromToken();
+
+        EnsureChallengeBelongToUser(customerEmail, id);
+
+        var task = _challengeService.GetById(id);
+
+        return Ok(task);
     }
 
     [HttpPut]
