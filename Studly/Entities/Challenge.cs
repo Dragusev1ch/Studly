@@ -1,28 +1,35 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Studly.DAL.Enums;
-using Studly.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
-namespace Studly.DAL.Entities
+namespace Studly.Entities
 {
     public class Challenge
     {
-        [Key] 
-        public int Id { get; set; }
-        [Required] [MaxLength(20)] 
-        public string Title { get; set; } = string.Empty;
-        [Required] 
-        public string Description { get; set; } = string.Empty;
+        [Key]
+        public int TaskId { get; set; }
+
         [Required]
+        [MaxLength(20)]
+        public string Title { get; set; } = string.Empty;
+
+        public string Description { get; set; } = string.Empty;
+
         public DateTime? Deadline { get; set; }
-        public ChallengePriority Priority { get; set; }
-        public ChallengeStatus Status { get; set; }
 
-        public int CustomerId { get; set; }
-        public int? ParentChallengeId { get; set; }
+        //public string Priority { get; set; }
 
-        public Challenge? ParentChallenge { get; set; }
-        public Customer Customer { get; set; }
+        //public string Status { get; set; }
 
-        public ICollection<Challenge> SubTasks { get; set; } = new List<Challenge>();
+        public int UserId { get; set; }
+        public Customer? Customer { get; set; }
+        public ICollection<Clock> Clocks { get; set; } = new List<Clock>();
+        public ICollection<TaskLabel> TaskLabels { get; set; } = new List<TaskLabel>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
+
 }
