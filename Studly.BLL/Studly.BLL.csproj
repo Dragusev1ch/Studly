@@ -18,8 +18,4 @@
     <PackageReference Include="Ninject" Version="3.3.6" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTO\Challenge\" />
-  </ItemGroup>
-
 </Project>
