@@ -1,4 +1,6 @@
-﻿using Studly.Entities;
+﻿using Studly.DAL.EF;
+using Studly.DAL.Entities;
+using Studly.Entities;
 using Studly.Interfaces;
 
 namespace Studly.Repositories;
@@ -6,9 +8,10 @@ namespace Studly.Repositories;
 public class EFUnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext db;
-    private  CustomerRepository customerRepository;
+    private  CustomerRepository _customerRepository;
+    private ChallengeRepository _challengeRepository;
     
-    private bool disposed = false;
+    private bool _disposed;
 
     public EFUnitOfWork(ApplicationDbContext dbContext)
     {
@@ -19,33 +22,34 @@ public class EFUnitOfWork : IUnitOfWork
     {
         get
         {
-            if (customerRepository == null) customerRepository = new CustomerRepository(db);
+            if (_customerRepository == null) _customerRepository = new CustomerRepository(db);
 
-            return customerRepository;
+            return _customerRepository;
+        }
+    }
+
+    public IRepository<Challenge> Challenges
+    {
+        get
+        {
+            if(_challengeRepository == null) _challengeRepository = new ChallengeRepository(db);
+
+            return _challengeRepository;
         }
     }
 
     /*TODO Another Entities*/
 
 
-    
-
-    public IRepository<Challenge> Challenges { get; }
-    public IRepository<Clock> Clocks { get; }
-    public IRepository<Comment> Comments { get; }
-    public IRepository<Label> Labels { get; }
-    public IRepository<TaskLabel> TaskLabels { get; }
-
     public virtual void Dispose(bool disposing)
     {
-        if (!disposed)
+        if (_disposed) return;
+
+        if (disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            disposed = true;
+            db.Dispose();
         }
+        _disposed = true;
     }
 
     public void Dispose()

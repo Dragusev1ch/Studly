@@ -7,6 +7,7 @@ using Studly.BLL.Infrastructure;
 using Studly.BLL.Interfaces;
 using Studly.BLL.Interfaces.Services;
 using Studly.BLL.Services;
+using Studly.DAL.EF;
 using Studly.Interfaces;
 using Studly.Repositories;
 
@@ -84,6 +85,7 @@ public class ConfigurationService
         services.AddScoped<IUnitOfWork, EFUnitOfWork>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IChallengeService, ChallengeService>();
     }
 
     public static void ConfigureCors(IServiceCollection services)
