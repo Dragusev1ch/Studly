@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Studly.DAL.EF;
 using Studly.Entities;
 using Studly.Interfaces;
 
@@ -12,7 +13,6 @@ namespace Studly.Repositories
     public class CustomerRepository : IRepository<Customer>
     {
         private readonly ApplicationDbContext db;
-
         public CustomerRepository(ApplicationDbContext context)
         {
             db = context;
@@ -22,19 +22,14 @@ namespace Studly.Repositories
             return db.Customers.AsQueryable();
         }
 
-        public Customer Get(int id)
-        {
-            return db.Customers.Find(id);
-        }
-
         public IEnumerable<Customer> Find(Func<Customer, bool> predicate)
         {
             return db.Customers.Where(predicate).ToList();
         }
 
-        public void Create(Customer item)
+        public Customer Create(Customer item)
         {
-            db.Customers.Add(item);
+            return db.Customers.Add(item).Entity;
         }
 
         public void Update(Customer item)

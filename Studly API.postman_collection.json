@@ -1,0 +1,782 @@
+{
+	"info": {
+		"_postman_id": "46cbac81-7ea7-4ea7-97c7-3566c086019c",
+		"name": "Studly API",
+		"description": "# ⛓️ Get started here\n\nPostman allows you to test your APIs using simple Javascript code. You can evaluate your response body, headers, cookies, and more using the [ChaiJS BDD](https://www.chaijs.com/api/bdd/) syntax.\n\nThis template guides you through the process of setting up an integration test to ensure that all individual components of an API function together seamlessly.\n\nThe API under test in this collection includes three endpoints for registering and receiving a token, accessing your unique generated name, and unregistering a token:\n\n- POST `/register`\n- POST `/unregister`\n- GET `/my-name`\n    \n\nBy setting up requests in the order of the operation, we can test the flow of data to and from the endpoints and ensure they work together as expected. We also verify that the data persists between requests on the back end.\n\n## 🔖 **How to use this template**\n\n**Step 1:** Check out the requests' documentation to learn more about -\n\n- what each request is meant to do.\n- the tests we've added against each one.\n    \n\n**Step 2:** Run this collection by clicking on \"Run\".\n\n<img src=\"https://content.pstmn.io/84019b0f-69c8-4c5f-98b9-2c90a6f9a0b1/Y29sbGVjdGlvbi1ydW5uZXItYnV0dG9uLmpwZWc=\" width=\"266\" height=\"103\">\n\n**Step 3:** To customize this template, replace the request URLs with your API endpoints and add or edit the tests if needed.\n\n## ℹ️ Resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23535060"
+	},
+	"item": [
+		{
+			"name": "API Auth tests",
+			"item": [
+				{
+					"name": "LoginTests",
+					"item": [
+						{
+							"name": "Login-404getErrorNotFound",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomString(length, chars) {\r",
+											"    var result = '';\r",
+											"    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];\r",
+											"    return result;\r",
+											"}\r",
+											"\r",
+											"var emailLocalPart = getRandomString(Math.min(Math.floor(Math.random() * 8) + 1, 8), 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');\r",
+											"var email = emailLocalPart + '@example.com';\r",
+											"var password = getRandomString(Math.floor(Math.random() * 13) + 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');\r",
+											"\r",
+											"pm.environment.set(\"randomEmail\", email);\r",
+											"pm.environment.set(\"randomPassword\", password);\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response has correct format\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property('StatusCode');\r",
+											"    pm.expect(jsonData).to.have.property('Message');\r",
+											"    pm.expect(jsonData).to.have.property('ExceptionMessage');\r",
+											"    pm.expect(jsonData.StatusCode).to.eql(404);\r",
+											"    pm.expect(jsonData.Message).to.eql(\"Check your email and password and try again\");\r",
+											"    pm.expect(jsonData.ExceptionMessage).to.eql(\"User with this email and password is not found\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{randomEmail}}\",\r\n  \"password\": \"{{randomPassword}}\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HostUrl}}/api/login",
+									"host": [
+										"{{HostUrl}}"
+									],
+									"path": [
+										"api",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login-getJwt-200",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response has correct format\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property('value');\r",
+											"    pm.expect(jsonData.value).to.be.a('string');\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": false
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{JwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{TestUserDataLogin}}\",\r\n    \"password\": \"{{TestUserDataPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HostUrl}}/api/login",
+									"host": [
+										"{{HostUrl}}"
+									],
+									"path": [
+										"api",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login-400getErrorBadRequest",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomString(length, chars) {\r",
+											"    var result = '';\r",
+											"    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];\r",
+											"    return result;\r",
+											"}\r",
+											"\r",
+											"var password = getRandomString(Math.floor(Math.random() * 13) + 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');\r",
+											"\r",
+											"pm.environment.set(\"randomPassword\", password);\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response has correct format\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property('StatusCode');\r",
+											"    pm.expect(jsonData).to.have.property('Message');\r",
+											"    pm.expect(jsonData).to.have.property('ExceptionMessage');\r",
+											"    pm.expect(jsonData.StatusCode).to.eql(400);\r",
+											"    pm.expect(jsonData.Message).to.eql(\"Check your email and password and try again\");\r",
+											"    pm.expect(jsonData.ExceptionMessage).to.eql(\"User name or password is not correct\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"{{TestUserDataLogin}}\",\r\n  \"password\": \"{{randomPassword}}\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HostUrl}}/api/login",
+									"host": [
+										"{{HostUrl}}"
+									],
+									"path": [
+										"api",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "RegisterTests",
+					"item": [
+						{
+							"name": "Post-newUser-200",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomString(length, chars) {\r",
+											"    var result = '';\r",
+											"    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];\r",
+											"    return result;\r",
+											"}\r",
+											"\r",
+											"var name = getRandomString(Math.floor(Math.random() * 10) + 1, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');\r",
+											"var emailLocalPart = getRandomString(Math.min(Math.floor(Math.random() * 8) + 1, 8), 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');\r",
+											"var email = emailLocalPart + '@example.com';\r",
+											"var password = getRandomString(Math.floor(Math.random() * 13) + 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');\r",
+											"\r",
+											"pm.environment.set(\"randomName\", name);\r",
+											"pm.environment.set(\"randomEmail\", email);\r",
+											"pm.environment.set(\"randomPassword\", password);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response has correct format\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property('name');\r",
+											"    pm.expect(jsonData).to.have.property('email');\r",
+											"    pm.expect(jsonData).to.have.property('registrationDate');\r",
+											"    pm.expect(jsonData.name).to.be.a('string');\r",
+											"    pm.expect(jsonData.email).to.be.a('string');\r",
+											"    pm.expect(jsonData.registrationDate).to.be.a('string');\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"{{randomName}}\",\r\n  \"email\": \"{{randomEmail}}\",\r\n  \"password\": \"{{randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HostUrl}}/api/customer",
+									"host": [
+										"{{HostUrl}}"
+									],
+									"path": [
+										"api",
+										"customer"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Post-newUser-400getErrorUsedEmail",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function getRandomString(length, chars) {\r",
+											"    var result = '';\r",
+											"    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];\r",
+											"    return result;\r",
+											"}\r",
+											"\r",
+											"var name = getRandomString(Math.floor(Math.random() * 10) + 1, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');\r",
+											"var password = getRandomString(Math.floor(Math.random() * 13) + 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');\r",
+											"\r",
+											"pm.environment.set(\"randomName\", name);\r",
+											"pm.environment.set(\"randomPassword\", password);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response has correct format\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property('StatusCode');\r",
+											"    pm.expect(jsonData).to.have.property('Message');\r",
+											"    pm.expect(jsonData).to.have.property('ExceptionMessage');\r",
+											"    pm.expect(jsonData.StatusCode).to.eql(400);\r",
+											"    pm.expect(jsonData.Message).to.eql(\"Please, use another email for registration\");\r",
+											"    pm.expect(jsonData.ExceptionMessage).to.eql(\"User with this email is already exist\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"{{randomName}}\",\r\n  \"email\": \"{{TestUserDataLogin}}\",\r\n  \"password\": \"{{randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HostUrl}}/api/customer",
+									"host": [
+										"{{HostUrl}}"
+									],
+									"path": [
+										"api",
+										"customer"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "API User Operation tests",
+			"item": [
+				{
+					"name": "Put-updatePass-200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Basic User Response Check\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('name');\r",
+									"    pm.expect(jsonData).to.have.property('email');\r",
+									"    pm.expect(jsonData).to.have.property('registrationDate');\r",
+									"    pm.expect(jsonData.name).to.eql(\"Postman\");\r",
+									"    pm.expect(jsonData.email).to.eql(\"Postman@gmail.com\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function getRandomString(length, chars) {\r",
+									"    var result = '';\r",
+									"    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];\r",
+									"    return result;\r",
+									"}\r",
+									"\r",
+									"// Save the old password\r",
+									"pm.environment.set(\"TempStr\", pm.environment.get(\"TestUserDataPassword\"));\r",
+									"\r",
+									"// Generate a new password\r",
+									"var newPassword = getRandomString(Math.floor(Math.random() * 13) + 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');\r",
+									"pm.environment.set(\"TestUserDataPassword\", newPassword);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldPassword\": \"{{TempStr}}\",\r\n  \"newPassword\": \"{{TestUserDataPassword}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HostUrl}}/api/customer",
+							"host": [
+								"{{HostUrl}}"
+							],
+							"path": [
+								"api",
+								"customer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete-user-200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Basic User Response Check\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('name');\r",
+									"    pm.expect(jsonData).to.have.property('email');\r",
+									"    pm.expect(jsonData).to.have.property('registrationDate');\r",
+									"    pm.expect(jsonData.name).to.eql(\"Postman\");\r",
+									"    pm.expect(jsonData.email).to.eql(\"Postman@gmail.com\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HostUrl}}/api/customer",
+							"host": [
+								"{{HostUrl}}"
+							],
+							"path": [
+								"api",
+								"customer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-challenges-200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем, что код ответа 200\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Получаем ответ\r",
+									"let challenges = pm.response.json();\r",
+									"\r",
+									"// Проверка на то, что пришел массив\r",
+									"pm.test(\"Response is an array\", function () {\r",
+									"    pm.expect(challenges).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"// Проверка структуры каждого challenge\r",
+									"challenges.forEach(challenge => {\r",
+									"    pm.test(`Challenge ${challenge.id} has valid structure`, function () {\r",
+									"        pm.expect(challenge).to.have.property('title').that.is.a('string').with.lengthOf.at.most(50);\r",
+									"        pm.expect(challenge).to.have.property('description').that.is.a('string').with.lengthOf.at.most(1000);\r",
+									"        pm.expect(challenge).to.have.property('deadLine').that.satisfies(value => {\r",
+									"            return value === null || pm.expect(new Date(value)).to.be.a('date');\r",
+									"        });\r",
+									"        pm.expect(challenge).to.have.property('priority').that.is.a('number').within(1, 5);\r",
+									"        pm.expect(challenge).to.have.property('status').that.is.a('number').within(1, 5);\r",
+									"        \r",
+									"        // Проверка subtasks\r",
+									"        pm.expect(challenge.subTasks).to.be.an('array');\r",
+									"        challenge.subTasks.forEach(subTask => {\r",
+									"            pm.expect(subTask).to.have.property('title').that.is.a('string');\r",
+									"            pm.expect(subTask).to.have.property('deadLine').that.satisfies(value => {\r",
+									"                return value === null || pm.expect(new Date(value)).to.be.a('date');\r",
+									"            });\r",
+									"            pm.expect(subTask).to.have.property('priority').that.is.a('number').within(1, 5);\r",
+									"            pm.expect(subTask).to.have.property('status').that.is.a('number').within(1, 5);\r",
+									"        });\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const challengeUrl = pm.environment.get(\"HostUrl\") + \"/api/challenge\";\r",
+									"const requestBody = {\r",
+									"    title: \"Some task #1\",\r",
+									"    description: \"Task that makes other life easier\",\r",
+									"    deadline: \"2024-01-21T20:03:03.015Z\",\r",
+									"    priority: 3,\r",
+									"    subtasks: [\r",
+									"        {\r",
+									"            title: \"Some subtask #1\",\r",
+									"            description: \"string\",\r",
+									"            deadline: \"2024-01-20T20:03:03.015Z\",\r",
+									"            priority: 1\r",
+									"        },\r",
+									"        {\r",
+									"            title: \"Some subtask #2\",\r",
+									"            description: \"string\",\r",
+									"            deadline: \"2024-01-20T20:03:03.015Z\",\r",
+									"            priority: 1\r",
+									"        }\r",
+									"    ]\r",
+									"};\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: challengeUrl,\r",
+									"    method: 'POST',\r",
+									"    header: 'Content-Type:application/json',\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(requestBody)\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.log(\"Error during POST request:\", err);\r",
+									"    } else {\r",
+									"        console.log(\"POST request sent successfully\");\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HostUrl}}/api/challenges?offset=0&count=10",
+							"host": [
+								"{{HostUrl}}"
+							],
+							"path": [
+								"api",
+								"challenges"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "count",
+									"value": "10"
+								}
+							]
+						},
+						"description": "This endpoint makes an HTTP GET request to retrieve a list of challenges from the API. The request does not include a request body, and it expects a successful response with a status code of 200 and a content type of application/json. The response body will contain an array of challenge objects, or an empty array if no challenges are available."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Challenge Operations test",
+			"item": [
+				{
+					"name": "Post-challenge-200",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Title has a value\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('title');\r",
+									"    pm.expect(jsonData.title).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has all required fields\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('id');\r",
+									"    pm.expect(jsonData).to.have.property('description');\r",
+									"    pm.expect(jsonData).to.have.property('deadLine');\r",
+									"    pm.expect(jsonData).to.have.property('priority');\r",
+									"    pm.expect(jsonData).to.have.property('status');\r",
+									"    pm.expect(jsonData).to.have.property('customerId');\r",
+									"    pm.expect(jsonData).to.have.property('parentChallengeId');\r",
+									"    pm.expect(jsonData).to.have.property('subTasks');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Subtasks array has elements\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.subTasks).to.be.an('array').that.is.not.empty;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Some task #1\",\r\n    \"description\": \"Task that makes other life easyer\",\r\n    \"deadline\": \"2024-01-21T20:03:03.015Z\",\r\n    \"priority\": 3,\r\n    \"subtasks\": [\r\n        {\r\n            \"title\": \"Some subtask #1\",\r\n            \"description\": \"string\",\r\n            \"deadline\": \"2024-01-20T20:03:03.015Z\",\r\n            \"priority\": 1\r\n        },\r\n        {\r\n            \"title\": \"Some subtask #2\",\r\n            \"description\": \"string\",\r\n            \"deadline\": \"2024-01-20T20:03:03.015Z\",\r\n            \"priority\": 1\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HostUrl}}/api/challenge",
+							"host": [
+								"{{HostUrl}}"
+							],
+							"path": [
+								"api",
+								"challenge"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{JwtToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const loginUrl = pm.environment.get(\"HostUrl\") + \"/api/login\";",
+					"const customerUrl = pm.environment.get(\"HostUrl\") + \"/api/customer\";",
+					"const email = pm.environment.get(\"TestUserDataLogin\");",
+					"const password = pm.environment.get(\"TestUserDataPassword\");",
+					"",
+					"function createUserAndExtractToken() {",
+					"    const requestBody = {",
+					"        name: \"Postman\",",
+					"        email: email,",
+					"        password: password",
+					"    };",
+					"",
+					"    pm.sendRequest({",
+					"        url: customerUrl,",
+					"        method: 'POST',",
+					"        header: 'Content-Type:application/json',",
+					"        body: {",
+					"            mode: 'raw',",
+					"            raw: JSON.stringify(requestBody)",
+					"        }",
+					"    }, function (err, response) {",
+					"        if (err) {",
+					"            console.log(\"Error creating user:\", err);",
+					"        } else {",
+					"            const respJson = response.json();",
+					"            if(respJson && respJson.value) {",
+					"                pm.environment.set(\"JwtToken\", respJson.value);",
+					"            }",
+					"        }",
+					"    });",
+					"}",
+					"",
+					"pm.sendRequest({",
+					"    url: loginUrl,",
+					"    method: 'POST',",
+					"    header: 'Content-Type:application/json',",
+					"    body: {",
+					"        mode: 'raw',",
+					"        raw: JSON.stringify({ email: email, password: password })",
+					"    }",
+					"}, function (err, response) {",
+					"    if (err) {",
+					"        console.log(\"Error during login:\", err);",
+					"    } else {",
+					"        if (response.code === 404) {",
+					"            createUserAndExtractToken();",
+					"        } else if(response.code === 200) {",
+					"            const respJson = response.json();",
+					"            if(respJson && respJson.value) {",
+					"                pm.environment.set(\"JwtToken\", respJson.value);",
+					"            }",
+					"        }",
+					"    }",
+					"});",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IlBvc3RtYW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJQb3N0bWFuQGdtYWlsLmNvbSIsImV4cCI6MTczMTIzNjYwMCwiaXNzIjoiU09NRVNJVEUudWEiLCJhdWQiOiJTT01FU0lURS51YSJ9.Z4niOOSkTWvJ4MeyyIHx4w28CvXBb8wNtYdR6pHY6p0"
+		},
+		{
+			"key": "baseUrl",
+			"value": "https://postman-integration-testing.glitch.me/"
+		}
+	]
+}
