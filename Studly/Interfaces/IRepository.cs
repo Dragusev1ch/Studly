@@ -3,11 +3,11 @@ using Studly.Entities;
 
 namespace Studly.Interfaces;
 
-public interface IRepository<T> where T : class
+public interface IRepository<T> where T : BaseEntity
 {
     IQueryable<T> GetAll();
-    IEnumerable<T> Find(Func<T,Boolean> predicate);
-    T Create(T item);
-    void Update(T item);
-    void Delete(int id);
+    Task<IQueryable<T>> Find(Func<T,Boolean> predicate);
+    Task<T> Create(T item);
+    Task Update(T item);
+    Task Delete(int id);
 }

@@ -9,11 +9,8 @@ using Studly.DAL.Entities;
 
 namespace Studly.Entities
 {
-    public class Customer
+    public class Customer : BaseEntity
     {
-        [Key]
-        public int CustomerId { get; set; }
-
         [Required] [MaxLength(10)]
         public string Name { get; set; } = string.Empty;
 

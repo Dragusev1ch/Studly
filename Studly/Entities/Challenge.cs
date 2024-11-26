@@ -4,10 +4,8 @@ using Studly.Entities;
 
 namespace Studly.DAL.Entities
 {
-    public class Challenge
+    public class Challenge : BaseEntity
     {
-        [Key] 
-        public int Id { get; set; }
         [Required] [MaxLength(20)] 
         public string Title { get; set; } = string.Empty;
         [Required] 

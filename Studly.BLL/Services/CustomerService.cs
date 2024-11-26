@@ -87,7 +87,7 @@ public class CustomerService : ICustomerService
     {
         var customer = Database.Customers.GetAll().FirstOrDefault(c => c.Email == email) ?? throw _invalidUser;
 
-        Database.Customers.Delete(customer.CustomerId);
+        Database.Customers.Delete(customer.Id);
         Database.Save();
         return _mapper.Map<CustomerDto>(customer);
     }

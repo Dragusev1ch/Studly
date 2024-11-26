@@ -8,8 +8,9 @@ namespace Studly.Repositories;
 public class EFUnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext db;
-    private  CustomerRepository _customerRepository;
-    private ChallengeRepository _challengeRepository;
+    private  GenericRepository<Customer> _customerRepository;
+    private GenericRepository<Challenge> _challengeRepository;
+
     
     private bool _disposed;
 
@@ -22,7 +23,7 @@ public class EFUnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_customerRepository == null) _customerRepository = new CustomerRepository(db);
+            if (_customerRepository == null) _customerRepository = new GenericRepository<Customer>(db);
 
             return _customerRepository;
         }
@@ -32,7 +33,7 @@ public class EFUnitOfWork : IUnitOfWork
     {
         get
         {
-            if(_challengeRepository == null) _challengeRepository = new ChallengeRepository(db);
+            if(_challengeRepository == null) _challengeRepository = new GenericRepository<Challenge>(db);
 
             return _challengeRepository;
         }

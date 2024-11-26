@@ -40,7 +40,7 @@ public class ChallengeService : IChallengeService
         var customer = _database.Customers.GetAll().FirstOrDefault(customer => customer.Email == userEmail) ??
                        throw _customerNotFound;
 
-        challenge.CustomerId = customer.CustomerId;
+        challenge.CustomerId = customer.Id;
         challenge.Customer = customer;
 
         // Link parent
@@ -71,7 +71,7 @@ public class ChallengeService : IChallengeService
                        throw _customerNotFound;
 
         var challenges = _database.Challenges.GetAll()
-            .Where(c => c.CustomerId == customer.CustomerId && c.ParentChallengeId == null)
+            .Where(c => c.CustomerId == customer.Id && c.ParentChallengeId == null)
             .Include(c => c.SubTasks)
             .Select(challenge => _mapper.Map<ChallengeDto>(challenge))
             .AsEnumerable();
@@ -87,7 +87,7 @@ public class ChallengeService : IChallengeService
                        throw _customerNotFound;
 
         var request = _database.Challenges.GetAll()
-            .Where(c => c.CustomerId == customer.CustomerId && c.ParentChallengeId == null);
+            .Where(c => c.CustomerId == customer.Id && c.ParentChallengeId == null);
 
         if (completedVisible.HasValue && completedVisible.Value)
             request = request.Where(c => c.Status != ChallengeStatus.Completed);
