@@ -10,6 +10,7 @@ public class EFUnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext db;
     private  GenericRepository<Customer> _customerRepository;
     private GenericRepository<Challenge> _challengeRepository;
+    private GenericRepository<TimeTrackingSession> _timeTrackingSessionRepository;
 
     
     private bool _disposed;
@@ -36,6 +37,16 @@ public class EFUnitOfWork : IUnitOfWork
             if(_challengeRepository == null) _challengeRepository = new GenericRepository<Challenge>(db);
 
             return _challengeRepository;
+        }
+    }
+
+    public IRepository<TimeTrackingSession> TimeTrackingSessions
+    {
+        get
+        {
+            if (_timeTrackingSessionRepository == null) _timeTrackingSessionRepository = new GenericRepository<TimeTrackingSession>(db);
+
+            return _timeTrackingSessionRepository;
         }
     }
 

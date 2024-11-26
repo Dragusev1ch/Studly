@@ -13,6 +13,7 @@ public sealed class ApplicationDbContext : DbContext
 
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Challenge> Challenges { get; set; }
+    public DbSet<TimeTrackingSession> TimeTrackingSessions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,7 +34,7 @@ public sealed class ApplicationDbContext : DbContext
         {
             entity.Property(e => e.Title).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Description);
-            entity.Property(e => e.Deadline).IsRequired();
+            entity.Property(e => e.TimeTrackingSession.EndTime).IsRequired();
             entity.Property(e => e.Status).IsRequired();
             entity.Property(e => e.Priority).IsRequired();
             entity.Property(e => e.ParentChallengeId).IsRequired(false);

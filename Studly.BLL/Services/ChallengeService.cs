@@ -94,11 +94,11 @@ public class ChallengeService : IChallengeService
         if (date.HasValue)
             request = date switch
             {
-                DateVariants.Today => request.Where(c => c.Deadline != null && c.Deadline.Value.Date == DateTime.Today),
+                DateVariants.Today => request.Where(c => c.TimeTrackingSession.EndTime != null && c.TimeTrackingSession.EndTime.Value.Date == DateTime.Today),
                 DateVariants.Tomorrow => request.Where(c =>
-                    c.Deadline != null && c.Deadline.Value.Date == DateTime.Today.AddDays(1)),
+                    c.TimeTrackingSession.EndTime != null && c.TimeTrackingSession.EndTime.Value.Date == DateTime.Today.AddDays(1)),
                 DateVariants.Month => request.Where(c =>
-                    c.Deadline != null && c.Deadline.Value.Date < DateTime.Today.AddDays(32)),
+                    c.TimeTrackingSession.EndTime != null && c.TimeTrackingSession.EndTime.Value.Date < DateTime.Today.AddDays(32)),
                 _ => request
             };
         if (sortByStatus.HasValue)
@@ -137,7 +137,7 @@ public class ChallengeService : IChallengeService
 
         if (!string.IsNullOrEmpty(newChallenge.Title)) entity.Title = newChallenge.Title;
         if (!string.IsNullOrEmpty(newChallenge.Description)) entity.Description = newChallenge.Description;
-        if (newChallenge.DeadLine.HasValue) entity.Deadline = newChallenge.DeadLine;
+        //if (newChallenge.DeadLine.HasValue) entity.TimeTrackingSession.EndTime = newChallenge.DeadLine;
         if (newChallenge.Status.HasValue) entity.Status = newChallenge.Status.Value;
         if (newChallenge.Priority.HasValue) entity.Priority = newChallenge.Priority.Value;
 

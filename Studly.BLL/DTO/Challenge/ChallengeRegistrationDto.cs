@@ -6,6 +6,7 @@ namespace Studly.BLL.DTO.Challenge;
 public class ChallengeRegistrationDto
 {
     public int? ParentChallengeId { get; set; }
+    public int TimeTrackingSessionId { get; set; }
 
     [Required]
     [StringLength(50, ErrorMessage = "Title limit is 50 chars!")]
@@ -13,8 +14,6 @@ public class ChallengeRegistrationDto
 
     [StringLength(1000, ErrorMessage = "Maximum length is 1000 chars!")]
     public string Description { get; set; }
-
-    public DateTime? Deadline { get; set; }
 
     [Required] public ChallengePriority Priority { get; set; }
 

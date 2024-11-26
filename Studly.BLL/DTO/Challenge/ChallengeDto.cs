@@ -8,12 +8,12 @@ public class ChallengeDto
 
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public DateTime? DeadLine { get; set; }
     public ChallengePriority Priority { get; set; }
     public ChallengeStatus Status { get; set; }
 
     public int CustomerId { get; set; }
     public int? ParentChallengeId { get; set; }
+    public int TimeTrackingSessionId { get; set; }
 
 
     public List<ChallengeDto> SubTasks { get; set; }
