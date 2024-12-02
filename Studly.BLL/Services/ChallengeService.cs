@@ -94,11 +94,11 @@ public class ChallengeService : IChallengeService
         if (date.HasValue)
             request = date switch
             {
-                DateVariants.Today => request.Where(c => c.TimeTrackingSession.EndTime != null && c.TimeTrackingSession.EndTime.Value.Date == DateTime.Today),
+                DateVariants.Today => request.Where(c => c.Deadline != null && c.Deadline.Date == DateTime.Today),
                 DateVariants.Tomorrow => request.Where(c =>
-                    c.TimeTrackingSession.EndTime != null && c.TimeTrackingSession.EndTime.Value.Date == DateTime.Today.AddDays(1)),
+                    c.Deadline != null && c.Deadline.Date == DateTime.Today.AddDays(1)),
                 DateVariants.Month => request.Where(c =>
-                    c.TimeTrackingSession.EndTime != null && c.TimeTrackingSession.EndTime.Value.Date < DateTime.Today.AddDays(32)),
+                    c.Deadline != null && c.Deadline < DateTime.Today.AddDays(32)),
                 _ => request
             };
         if (sortByStatus.HasValue)
